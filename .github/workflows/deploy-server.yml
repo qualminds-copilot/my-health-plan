@@ -37,7 +37,7 @@ jobs:
         # npm test # Uncomment if you have tests
         
     - name: Deploy to Railway
-      uses: railwayapp/railway-deploy@v3
+      uses: railwayapp/railway-deploy@v1
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
         railway_token: ${{ secrets.RAILWAY_TOKEN }}

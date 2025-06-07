@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from './Header';
+import { apiConfig } from '../config/api';
 
 const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const [dashboardStats, setDashboardStats] = useState({
@@ -32,16 +33,15 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
-      // Fetch dashboard statistics
-      const statsResponse = await axios.get('http://localhost:5000/api/dashboard/stats', {
+        // Fetch dashboard statistics
+      const statsResponse = await axios.get(apiConfig.endpoints.dashboard.stats, {
         headers: { 'Authorization': `Bearer ${token}` },
         signal
       });
       setDashboardStats(statsResponse.data);
 
       // Fetch authorizations for the table
-      const authResponse = await axios.get('http://localhost:5000/api/dashboard/authorizations?limit=50', {
+      const authResponse = await axios.get(`${apiConfig.endpoints.dashboard.authorizations}?limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` },
         signal
       });

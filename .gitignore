@@ -15,6 +15,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Server-specific environment files
+server/.env
+
 # OS generated files
 .DS_Store
 .DS_Store?

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { apiConfig } from '../config/api';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -10,10 +11,8 @@ const Login = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+    setError('');    try {
+      const response = await axios.post(apiConfig.endpoints.auth.login, {
         email,
         password
       });

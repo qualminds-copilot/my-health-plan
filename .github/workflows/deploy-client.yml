@@ -1,0 +1,46 @@
+name: Deploy Client to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'client/**'
+      - '.github/workflows/deploy-client.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'client/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        cd client
+        npm ci
+        
+    - name: Build application
+      run: |
+        cd client
+        npm run build
+      env:
+        CI: false
+        NODE_ENV: production
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./client/build

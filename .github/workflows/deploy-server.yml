@@ -11,6 +11,9 @@ on:
     paths:
       - 'server/**'
 
+env:
+  NODE_VERSION: '18.x'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -22,7 +25,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         cache-dependency-path: server/package-lock.json
         
@@ -37,10 +40,16 @@ jobs:
         # npm test # Uncomment if you have tests
         
     - name: Deploy to Railway
-      uses: railwayapp/railway-deploy@v1
+      id: deploy
+      uses: bervProject/railway-deploy@main
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       with:
-        railway_token: ${{ secrets.RAILWAY_TOKEN }}
         service: ${{ secrets.RAILWAY_SERVICE_ID }}
+        detach: false
         # Uncomment the line below if you have a specific environment
         # environment: ${{ secrets.RAILWAY_ENVIRONMENT }}
+        
+    - name: Wait for deployment
+      run: sleep 30

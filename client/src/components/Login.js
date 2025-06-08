@@ -39,7 +39,7 @@ const Login = ({ onLogin }) => {
             <div className="card-body p-5">
               <div className="text-center mb-4">
                 <h2 className="text-primary fw-bold">MyHealthPlan</h2>
-                <p className="text-muted">Sign in to your account</p>
+                <p className="text-muted">Sign-in to your account</p>
               </div>
               
               <form onSubmit={handleSubmit}>

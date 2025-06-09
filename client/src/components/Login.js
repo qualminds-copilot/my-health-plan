@@ -73,7 +73,7 @@ const Login = ({ onLogin }) => {
               {/* Small logo above Login title */}
               <i className="bi bi-heart-pulse text-primary mb-2" style={{ fontSize: '2rem' }}></i>
               <h2 className="fw-bold login-title">My Health Plan</h2>
-              <p className="text-muted login-subtitle">Log in to your account.</p>
+              <p className="text-muted login-subtitle">Log-in to your account.</p>
             </div>
             
             <form onSubmit={handleSubmit}>

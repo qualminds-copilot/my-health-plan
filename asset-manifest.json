@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/my-health-plan/static/css/main.a2f220f5.css",
-    "main.js": "/my-health-plan/static/js/main.5268c296.js",
-    "static/js/453.419a5d54.chunk.js": "/my-health-plan/static/js/453.419a5d54.chunk.js",
-    "index.html": "/my-health-plan/index.html",
-    "main.a2f220f5.css.map": "/my-health-plan/static/css/main.a2f220f5.css.map",
-    "main.5268c296.js.map": "/my-health-plan/static/js/main.5268c296.js.map",
-    "453.419a5d54.chunk.js.map": "/my-health-plan/static/js/453.419a5d54.chunk.js.map"
+    "main.css": "/static/css/main.057f4a63.css",
+    "main.js": "/static/js/main.a2322ec9.js",
+    "static/js/453.419a5d54.chunk.js": "/static/js/453.419a5d54.chunk.js",
+    "index.html": "/index.html",
+    "main.057f4a63.css.map": "/static/css/main.057f4a63.css.map",
+    "main.a2322ec9.js.map": "/static/js/main.a2322ec9.js.map",
+    "453.419a5d54.chunk.js.map": "/static/js/453.419a5d54.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a2f220f5.css",
-    "static/js/main.5268c296.js"
+    "static/css/main.057f4a63.css",
+    "static/js/main.a2322ec9.js"
   ]
 }

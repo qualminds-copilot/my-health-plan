@@ -4,12 +4,13 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Member from './components/Member';
 import './App.css';
+import API_BASE_URL from './config';
 
 // Placeholder for fetching member data by Number - replace with your actual data fetching logic
 const fetchMemberByNumber = async (memberNumber, token) => {
   console.log(`[App.js] fetchMemberByNumber called with: ${memberNumber}, token: ${token ? 'present' : 'absent'}`);
   try {
-    const response = await fetch(`/api/dashboard/member/${memberNumber}`, {
+    const response = await fetch(`${API_BASE_URL}/api/dashboard/member/${memberNumber}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

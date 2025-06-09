@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -22,7 +23,7 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
       const token = localStorage.getItem('token');
       if (token) {
         // Call backend logout endpoint
-        await axios.post('http://localhost:5000/api/auth/logout', {}, {
+        await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

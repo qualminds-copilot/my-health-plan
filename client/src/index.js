@@ -5,9 +5,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const basename = window.location.hostname === 'qualminds-ai.github.io' ? '/my-health-plan' : '/';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter> { /* Wrap App with BrowserRouter */ }
+  <BrowserRouter basename={basename}> { /* Wrap App with BrowserRouter and set basename */ }
     <App />
   </BrowserRouter>
 );

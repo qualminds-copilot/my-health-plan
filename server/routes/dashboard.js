@@ -163,6 +163,41 @@ router.get('/authorizations', async (req, res) => {
   }
 });
 
+// Get member details by member_number
+router.get('/member/:memberNumber', async (req, res) => {
+  try {
+    const { memberNumber } = req.params;
+    const query = `
+      SELECT 
+        m.id, 
+        m.member_number, 
+        m.first_name, 
+        m.last_name, 
+        CONCAT(m.first_name, ' ', m.last_name) as name, 
+        m.date_of_birth as dob,
+        -- m.pcp_name as pcp, -- pcp_name does not exist in members table
+        m.insurance_group as plan, -- Renamed from insurance_plan to insurance_group
+        -- m.status, -- status does not exist in members table
+        m.address,
+        m.phone as phone_number, -- Renamed from phone_number to phone
+        m.email,
+        m.gender
+        -- Add other fields as needed by the Member.js component
+      FROM members m
+      WHERE m.member_number = $1
+    `;
+    const result = await pool.query(query, [memberNumber]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching member by number:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get single authorization details
 router.get('/authorizations/:id', async (req, res) => {
   try {

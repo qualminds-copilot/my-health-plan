@@ -53,10 +53,26 @@
   z-index: 1050;
 }
 
+.modal-dialog {
+  z-index: 1055;
+  position: relative;
+}
+
 .modal-backdrop {
   z-index: 1040;
   backdrop-filter: blur(15px);
   background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-backdrop-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1040;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 /* Custom dropdown styling */
@@ -638,3 +654,391 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* Login Page Specific Styles */
+.login-container {
+  overflow: hidden; /* Prevent scrollbars if content overflows slightly */
+}
+
+.login-branding-column {
+  background: linear-gradient(to bottom, rgba(0, 123, 255, 0.85), rgba(0, 86, 179, 0.95)), 
+              url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.login-logo-text {
+  font-size: 2.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.login-tagline {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.login-form-column {
+  padding: 2rem;
+}
+
+.login-form-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-title {
+  font-size: 2rem;
+  color: #007bff; /* Changed to theme primary blue */
+}
+
+.login-subtitle {
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+.login-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.login-input {
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+}
+
+.login-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.password-toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 1.1rem;
+  line-height: 1; /* Added to help with vertical alignment */
+  z-index: 3; /* Ensure it's above the input field */
+}
+
+.login-link {
+  font-size: 0.85rem;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+.login-btn-main {
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  background-color: #007bff; /* Changed to theme primary blue */
+  border-color: #007bff; /* Changed to theme primary blue */
+}
+
+.login-btn-main:hover {
+  background-color: #0056b3; /* Darker shade of theme blue for hover */
+  border-color: #0056b3; /* Darker shade of theme blue for hover */
+}
+
+.login-btn-google {
+  /* background-color: #4285F4; */ /* Google Blue - Using default outline-secondary for now */
+  /* color: white; */ /* Text color will be inherited or default for btn-outline-secondary */
+  border-color: #ced4da; /* Standard Bootstrap border color for outline buttons */
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */ /* Optional: can add a subtle shadow */
+  text-decoration: none; /* Remove underline from link if it's an <a> tag */
+}
+
+.login-btn-google:hover {
+  background-color: #4285F4; /* Google Blue for hover background */
+  color: white !important; /* Ensure text is white on hover */
+  border-color: #357AE8; /* Darker Google Blue for hover border */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */ /* Optional: darker shadow on hover */
+  text-decoration: none; /* Ensure no underline on hover */
+}
+
+.login-btn-google svg {
+  margin-right: 0.75rem;
+  /* height: 20px; // SVG has its own height/width attributes */
+  /* width: 20px; */
+}
+
+/* Ensure SVG fill color changes on hover if needed, though Google's SVG is multi-colored */
+.login-btn-google:hover svg path {
+  /* fill: white; */ /* This would make the entire Google logo white, which might not be desired */
+}
+
+
+/* Logout Modal Theme Styling */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-bottom: none;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
+.modal-header .modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.8;
+  font-size: 1.1rem;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.modal-body {
+  padding: 2rem 1.5rem;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+.modal-body p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  gap: 0.75rem;
+}
+
+.modal-footer .btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #545b62;
+  border-color: #545b62;
+  transform: translateY(-1px);
+}
+
+.modal-footer .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.modal-footer .btn:disabled {
+  opacity: 0.6;
+  transform: none !important;
+}
+
+/* Sign Up / Demo Credentials Modal Styling */
+.signup-modal-content {
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 123, 255, 0.15);
+  overflow: hidden;
+  border: none;
+}
+
+.signup-modal-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); /* Blue theme gradient */
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-bottom: none;
+}
+
+.signup-modal-header .modal-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.signup-modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.signup-modal-body {
+  padding: 1.5rem 2rem 2rem 2rem;
+  background-color: #fff;
+}
+
+.demo-credentials-table {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.demo-credentials-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.demo-credentials-table td,
+.demo-credentials-table th {
+  vertical-align: middle;
+}
+
+.demo-credentials-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Copy button styles for demo credentials */
+.copy-btn {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+.signup-modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  justify-content: center; /* Center the button */
+}
+
+.signup-modal-footer .btn {
+  min-width: 120px;
+  font-weight: 500;
+  background-color: #007bff;
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.signup-modal-footer .btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.4);
+}
+
+/* Authorization tab completion animation */
+@keyframes completionTransition {
+  0% {
+    background-color: #e9ecef !important;
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    transform: scale(1);
+  }
+}
+
+/* Special animation for Closed tab to turn blue */
+@keyframes closedTabTransition {
+  0% {
+    background-color: #e9ecef;
+    color: #6c757d;
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    transform: scale(1);
+  }
+}
+
+.auth-step-btn.animating.completed {
+  animation: completionTransition 1.2s ease-in-out forwards;
+}
+
+.auth-step-btn.animating.closed {
+  animation: closedTabTransition 1.2s ease-in-out forwards;
+}
+
+.auth-step-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-step-btn.completed::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Approved content styling for Closed tab - only text values turn green */
+.closed-content.approved .text-value {
+  color: #28a745 !important;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+

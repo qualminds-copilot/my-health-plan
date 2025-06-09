@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from './Header';
-import { apiConfig } from '../config/api';
+import API_BASE_URL from '../config';
 
 const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const [dashboardStats, setDashboardStats] = useState({
@@ -33,15 +33,16 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-        // Fetch dashboard statistics
-      const statsResponse = await axios.get(apiConfig.endpoints.dashboard.stats, {
+      
+      // Fetch dashboard statistics
+      const statsResponse = await axios.get(`${API_BASE_URL}/api/dashboard/stats`, {
         headers: { 'Authorization': `Bearer ${token}` },
         signal
       });
       setDashboardStats(statsResponse.data);
 
       // Fetch authorizations for the table
-      const authResponse = await axios.get(`${apiConfig.endpoints.dashboard.authorizations}?limit=50`, {
+      const authResponse = await axios.get(`${API_BASE_URL}/api/dashboard/authorizations?limit=50`, {
         headers: { 'Authorization': `Bearer ${token}` },
         signal
       });
@@ -296,6 +297,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                     ) : (
                       authorizations.map((auth, index) => (
                         <tr key={auth.id} className={index === 0 ? "selected" : ""} onClick={() => handleRowClick(auth)}>
+                          <td id="member_number" style={{display: 'none'}}>{auth.member_number}</td>
                           <td className="cell-indicator">
                             {index === 0 && <i className="bi bi-play-fill text-primary"></i>}
                           </td>
@@ -325,14 +327,10 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                           </td>
                           <td className="cell-drg-code">{auth.drg_code || 'N/A'}</td>
                           <td className="cell-provider">
-                            <span className="badge" style={{backgroundColor: '#17a2b8', color: 'white'}}>
-                              {auth.provider_name || 'Unknown'}
-                            </span>
+                            {auth.provider_name || 'Unknown'}
                           </td>
                           <td className="cell-review-type">
-                            <span className="badge" style={{backgroundColor: '#6c757d', color: 'white'}}>
-                              {auth.review_type || 'Standard'}
-                            </span>
+                            {auth.review_type || 'Standard'}
                           </td>
                           <td className="cell-member-name">{auth.member_name || 'N/A'}</td>
                           <td className="cell-approved-days">{auth.approved_days || '0'}</td>

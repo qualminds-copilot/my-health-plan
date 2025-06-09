@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from './Header';
 
 const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate }) => {
+  const topRef = useRef(null);
+  const authContentRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Authorizations');
   const [activeAuthTab, setActiveAuthTab] = useState('Clinical Review');
   const [activeRequestTab, setActiveRequestTab] = useState('20250P000367');
+  const [showCompletionAnimation, setShowCompletionAnimation] = useState(false);
+  const [animatingTabIndex, setAnimatingTabIndex] = useState(-1);
+  const [allTabsCompleted, setAllTabsCompleted] = useState(false);
+  const [approvalStatus, setApprovalStatus] = useState('Pending');
+
+  // Handle approval status change
+  const handleApprovalStatusChange = (event) => {
+    setApprovalStatus(event.target.value);
+  };
 
   // Use prop data if available, otherwise use static demo data
   const memberData = propMemberData || {
@@ -87,16 +98,95 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
 
   // Define authorization sub-tabs
   const authTabs = [
-    { id: 'Request Submitted', label: 'Request Submitted', status: 'completed' },
-    { id: 'Clinical Review', label: 'Clinical Review', status: 'active' },
-    { id: 'Request Decision Appeal', label: 'Request Decision Appeal', status: 'pending' },
-    { id: 'MD Review', label: 'MD Review', status: 'pending' },
-    { id: 'Concurrent Review', label: 'Concurrent Review', status: 'pending' },
-    { id: 'Closed', label: 'Closed', status: 'pending' }
+    { id: 'Request Submitted', label: 'Request Submitted', status: 'completed' }, // Always completed
+    { id: 'Clinical Review', label: 'Clinical Review', status: allTabsCompleted || (showCompletionAnimation && animatingTabIndex >= 0) ? 'completed' : 'active' },
+    { id: 'Request Decision Appeal', label: 'Request Decision Appeal', status: allTabsCompleted || (showCompletionAnimation && animatingTabIndex >= 1) ? 'completed' : 'pending' },
+    { id: 'MD Review', label: 'MD Review', status: allTabsCompleted || (showCompletionAnimation && animatingTabIndex >= 2) ? 'completed' : 'pending' },
+    { id: 'Concurrent Review', label: 'Concurrent Review', status: allTabsCompleted || (showCompletionAnimation && animatingTabIndex >= 3) ? 'completed' : 'pending' },
+    { id: 'Closed', label: 'Closed', status: allTabsCompleted || (showCompletionAnimation && animatingTabIndex >= 4) ? 'closed' : 'pending' } // Only blue after animation reaches it
   ];
+
+  // Handle auth tab click with special animation for Closed tab
+  const handleAuthTabClick = (tabId) => {
+    console.log('=== TAB CLICKED ===', tabId);
+    
+    // Scroll to top function with multiple approaches
+    const scrollToTop = () => {
+      console.log('=== SCROLL TO AUTH CONTENT FUNCTION CALLED ===');
+      console.log('Current scroll position:', window.pageYOffset || document.documentElement.scrollTop);
+      
+      // Method 1: Calculate and scroll to position the auth content at the top
+      if (authContentRef.current) {
+        const rect = authContentRef.current.getBoundingClientRect();
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+        const targetScrollY = currentScrollY + rect.top - 20; // 20px offset from top
+        
+        console.log('Authorization content position from top:', rect.top);
+        console.log('Target scroll position:', targetScrollY);
+        
+        // Scroll to position the auth content near the top
+        window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+        
+        // Also try scrollIntoView as backup
+        setTimeout(() => {
+          authContentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+      
+      // Method 2: Check if scroll worked
+      setTimeout(() => {
+        const newPosition = window.pageYOffset || document.documentElement.scrollTop;
+        console.log('Scroll result - new position:', newPosition);
+        
+        if (authContentRef.current) {
+          const newRect = authContentRef.current.getBoundingClientRect();
+          console.log('New authorization content position from top:', newRect.top);
+        }
+      }, 800);
+    };
+
+    if (tabId === 'Closed' && !allTabsCompleted) {
+      // Immediate scroll when Closed tab is clicked
+      scrollToTop();
+      
+      // Trigger completion animation sequence
+      setShowCompletionAnimation(true);
+      
+      // Animate tabs to completed state one by one with delays
+      const tabIds = ['Clinical Review', 'Request Decision Appeal', 'MD Review', 'Concurrent Review', 'Closed'];
+      
+      // Sequential animation: each tab turns green one after another, Closed turns blue at the end
+      tabIds.forEach((id, index) => {
+        setTimeout(() => {
+          setAnimatingTabIndex(index);
+        }, index * 800); // 800ms delay between each tab animation
+      });
+      
+      // Set all tabs as completed after all animations
+      setTimeout(() => {
+        setAllTabsCompleted(true);
+        setAnimatingTabIndex(-1);
+      }, tabIds.length * 800 + 400);
+      
+      // Set active tab to Closed after animation and scroll again
+      setTimeout(() => {
+        setActiveAuthTab(tabId);
+        setShowCompletionAnimation(false);
+        // Scroll again after animation completes
+        setTimeout(scrollToTop, 100);
+      }, tabIds.length * 800 + 800);
+    } else {
+      setActiveAuthTab(tabId);
+      // Scroll to top for any tab click (including direct Closed tab clicks)
+      if (tabId === 'Closed') {
+        setTimeout(scrollToTop, 100);
+      }
+    }
+  };
 
   return (
     <div className="min-vh-100" style={{backgroundColor: '#f8f9fa'}}>
+      <div ref={topRef} id="top"></div>
       <Header user={user} onLogout={onLogout} onNavigate={onNavigate} activeTab="Members" />
 
       {/* Main Content */}
@@ -136,7 +226,7 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                     <i className="bi bi-person-fill"></i>
                   </div>
                   <div>
-                    <div className="fw-bold" style={{fontSize: '16px', color: '#333'}}>{memberData.name}</div>
+                    <div className="fw-bold member_name" style={{fontSize: '16px', color: '#333'}}>{memberData.name}</div>
                     <small className="text-muted" style={{fontSize: '12px'}}>01/01/1974, 51 Years, Male</small>
                   </div>
                 </div>
@@ -465,7 +555,7 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                           </div>
                         
                           {/* Authorization Sub-tabs */}
-                          <div className="authorization-subtabs mb-4">
+                          <div ref={authContentRef} className="authorization-subtabs mb-4">
                             <h6 className="text-muted mb-3 fw-semibold">
                               <i className="bi bi-diagram-3 me-2"></i>
                               Authorization Workflow Progress
@@ -476,27 +566,32 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                               padding: '20px',
                               boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}>
-                              <div className="d-flex align-items-center justify-content-start overflow-auto">
+                              <div className="d-flex align-items-start justify-content-start overflow-auto">
                                 {authTabs.map((authTab, index) => (
-                                  <div key={authTab.id} className="d-flex align-items-center">
-                                    <div className="text-center">
+                                  <React.Fragment key={authTab.id}>
+                                    <div className="text-center" style={{ minWidth: '120px' }}>
                                       <button
-                                        className={`auth-step-btn ${authTab.status === 'completed' ? 'completed' : ''} ${authTab.status === 'active' || activeAuthTab === authTab.id ? 'active' : ''}`}
-                                        onClick={() => setActiveAuthTab(authTab.id)}
+                                        id={authTab.id === 'Closed' ? 'closed-tab-btn' : undefined}
+                                        className={`auth-step-btn 
+                                          ${authTab.status === 'completed' ? 'completed' : ''} 
+                                          ${(authTab.status === 'active' || activeAuthTab === authTab.id || authTab.status === 'closed') ? 'active' : ''} 
+                                          ${showCompletionAnimation && index === animatingTabIndex && index > 0 && index < 4 ? 'animating completed' : ''}`}
+                                        onClick={() => handleAuthTabClick(authTab.id)}
                                         style={{
                                           background: authTab.status === 'completed' ? '#28a745' : 
+                                                     authTab.status === 'closed' ? '#007bff' :
                                                      (authTab.status === 'active' || activeAuthTab === authTab.id) ? '#007bff' : '#e9ecef',
-                                          color: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id ? 'white' : '#6c757d',
-                                          border: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id ? 
+                                          color: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id || authTab.status === 'closed' ? 'white' : '#6c757d',
+                                          border: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id || authTab.status === 'closed' ? 
                                                  '3px solid rgba(255,255,255,0.3)' : '3px solid transparent',
                                           padding: '12px 18px',
                                           borderRadius: '25px',
                                           fontSize: '13px',
                                           fontWeight: '600',
                                           cursor: 'pointer',
-                                          transition: 'all 0.3s ease',
+                                          transition: 'all 0.6s ease',
                                           whiteSpace: 'nowrap',
-                                          boxShadow: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id ? 
+                                          boxShadow: authTab.status === 'completed' || authTab.status === 'active' || activeAuthTab === authTab.id || authTab.status === 'closed' ? 
                                                     '0 4px 8px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)',
                                           transform: activeAuthTab === authTab.id ? 'scale(1.05)' : 'scale(1)'
                                         }}
@@ -522,17 +617,20 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                                         {authTab.status === 'completed' && 'Completed'}
                                         {authTab.status === 'active' && 'In Progress'}
                                         {authTab.status === 'pending' && 'Pending'}
+                                        {authTab.status === 'closed' && 'Closed'}
                                       </small>
                                     </div>
                                     {index < authTabs.length - 1 && (
                                       <div 
-                                        className="auth-step-line mx-3"
+                                        className="auth-step-line"
                                         style={{
                                           width: '30px',
                                           height: '3px',
                                           background: authTab.status === 'completed' ? '#28a745' : '#dee2e6',
                                           borderRadius: '2px',
-                                          position: 'relative'
+                                          position: 'relative',
+                                          margin: '0 15px',
+                                          marginTop: '21px'
                                         }}
                                       >
                                         {authTab.status === 'completed' && (
@@ -550,7 +648,7 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                                         )}
                                       </div>
                                     )}
-                                  </div>
+                                  </React.Fragment>
                                 ))}
                               </div>
                             </div>
@@ -577,7 +675,7 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
                                 {/* Medical Necessity Guidelines */}
                                 <div className="row">
                                   <div className="col-md-2">
-                                    <div className="medical-necessity-icon">
+                                    <div className="medical-necessity-icon d-flex flex-column align-items-center">
                                       <div className="bg-warning text-white p-3 rounded d-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
                                         <i className="bi bi-shield-check" style={{fontSize: '24px'}}></i>
                                       </div>
@@ -662,11 +760,202 @@ const Member = ({ user, memberData: propMemberData, onLogout, onBack, onNavigate
 
                             {activeAuthTab === 'Closed' && (
                               <div className="closed-content">
-                                <h5 className="mb-3">Closed</h5>
-                                <p>Authorization case closed.</p>
-                                <div className="alert alert-success">
-                                  <i className="bi bi-check-circle me-2"></i>
-                                  Case will be marked as closed upon completion.
+                                <div className="card">
+                                  <div className="card-header">
+                                    <h5 className="mb-0">Authorization Request Summary</h5>
+                                  </div>
+                                  <div className="card-body">
+                                    {/* Authorization Summary Table */}
+                                    <div className="row mb-4">
+                                      <div className="col-12">
+                                        <table className="table table-bordered">
+                                          <tbody>
+                                            <tr>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Authorization #</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>20250P000367</td>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Received Date</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>04/28/2025 03:47:01 AM</td>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Admission Date</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>04/28/2025 02:58:09 AM</td>
+                                            </tr>
+                                            <tr>
+                                              <td className="fw-bold bg-light">Request Type</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>Standard</td>
+                                              <td className="fw-bold bg-light">Status</td>
+                                              <td>
+                                                <select 
+                                                  id="approval-status-dropdown"
+                                                  className="form-select" 
+                                                  value={approvalStatus} 
+                                                  onChange={handleApprovalStatusChange}
+                                                  style={{
+                                                    border: approvalStatus === 'Approve' ? '1px solid #28a745' : '1px solid #fd7e14', 
+                                                    color: approvalStatus === 'Approve' ? '#28a745' : '#fd7e14'
+                                                  }}
+                                                >
+                                                  <option value="Pending">Pending</option>
+                                                  <option value="Approve">Approve</option>
+                                                  <option value="Deny">Deny</option>
+                                                </select>
+                                              </td>
+                                              <td></td>
+                                              <td></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+
+                                    {/* Second Table */}
+                                    <div className="row mb-4">
+                                      <div className="col-12">
+                                        <table className="table table-bordered">
+                                          <tbody>
+                                            <tr>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Place of Service</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>Inpatient Hospital</td>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Diagnosis</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>DKA</td>
+                                              <td className="fw-bold bg-light" style={{width: '15%'}}>Code Type</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>ICD 10</td>
+                                            </tr>
+                                            <tr>
+                                              <td className="fw-bold bg-light">Code Number</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>A41</td>
+                                              <td className="fw-bold bg-light">Updated</td>
+                                              <td style={{color: approvalStatus === 'Approve' ? '#28a745' : '#6c757d'}}>Concurrent Review</td>
+                                              <td></td>
+                                              <td></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+
+                                    {/* Notes Section */}
+                                    <div className="mb-4">
+                                      <h6 className="fw-bold">Notes</h6>
+                                      <div className="border p-3" style={{backgroundColor: '#f8f9fa'}}>
+                                        <p className="mb-2"><strong>Additional pertinent patient information from the BCBS AI Assistant:</strong></p>
+                                        <p className="mb-1">Other current patient diagnoses:</p>
+                                        <ul className="mb-0">
+                                          <li>CHF (ICD10: I50.9): 3/26/2025</li>
+                                          <li>DKA (DKA: E11.10): 6/14/2023</li>
+                                        </ul>
+                                      </div>
+                                    </div>
+
+                                    {/* Attachments Section */}
+                                    <div className="mb-4">
+                                      <h6 className="fw-bold">Attachments</h6>
+                                      <div className="row">
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-pdf fs-4 text-danger me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Summary of Attachments</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 3KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-text fs-4 text-primary me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Authorization request (original fax)</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 31KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-medical fs-4 text-success me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Medical History - Robert Abbott</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 6KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-text fs-4 text-warning me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Specialist Notes</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 6KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-medical fs-4 text-info me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Physical and Labs - Robert Abbott</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 31KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-text fs-4 text-danger me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>ED Notes</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 3KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-medical fs-4 text-success me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Physician notes</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 99KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="col-md-4 mb-3">
+                                          <div className="card">
+                                            <div className="card-body p-2">
+                                              <div className="d-flex align-items-center">
+                                                <i className="bi bi-file-earmark-text fs-4 text-info me-2"></i>
+                                                <div>
+                                                  <small className="fw-bold d-block" style={{color: '#20c997'}}>Nursing notes</small>
+                                                  <small className="text-muted">Apr 28, 2025 · 99KB.pdf</small>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             )}

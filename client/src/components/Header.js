@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { apiConfig } from '../config/api';
 
 const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -20,9 +19,10 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
     setLoggingOut(true);
     
     try {
-      const token = localStorage.getItem('token');      if (token) {
+      const token = localStorage.getItem('token');
+      if (token) {
         // Call backend logout endpoint
-        await axios.post(apiConfig.endpoints.auth.logout, {}, {
+        await axios.post('http://localhost:5000/api/auth/logout', {}, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -67,6 +67,7 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
             {navItems.map((item) => (
               <button 
                 key={item.name}
+                id={item.name === 'Dashboard' ? 'dashboard-menu-btn' : undefined}
                 className={`nav-menu-item me-3 ${item.active ? 'nav-menu-active' : ''}`}
                 onClick={() => handleNavClick(item.name)}
               >

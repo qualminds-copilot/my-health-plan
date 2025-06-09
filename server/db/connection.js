@@ -1,11 +1,5 @@
 const { Pool } = require('pg');
-const path = require('path'); // Added path import
-
-// Determine which .env file to load based on NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-const envPath = path.resolve(__dirname, '..', envFile); // Assumes .env files are in server/
-
-require('dotenv').config({ path: envPath });
+require('dotenv').config();
 
 let pool;
 

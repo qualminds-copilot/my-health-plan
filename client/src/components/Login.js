@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../config';
+import authService from '../services/authService';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -12,25 +11,20 @@ const Login = ({ onLogin }) => {
   const [copiedItem, setCopiedItem] = useState(null); // Track which item was copied
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault(); setLoading(true);
     setError('');
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      const response = await authService.login({
         email,
         password
       });
 
-      // Store token and user info
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
       // Call parent function to update app state
-      onLogin(response.data.user, response.data.token);
-      
+      onLogin(response.user, response.token);
+
     } catch (error) {
-      setError(error.response?.data?.message || 'Login failed. Please check your credentials.');
+      setError(error.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -75,7 +69,7 @@ const Login = ({ onLogin }) => {
               <h2 className="fw-bold login-title">My Health Plan</h2>
               <p className="text-muted login-subtitle">Log-in to your account.</p>
             </div>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label login-label">Email</label>
@@ -89,7 +83,7 @@ const Login = ({ onLogin }) => {
                   placeholder="Enter your email"
                 />
               </div>
-              
+
               <div className="mb-3">
                 <label htmlFor="password" className="form-label login-label">Password</label>
                 <div className="position-relative">
@@ -102,8 +96,8 @@ const Login = ({ onLogin }) => {
                     required
                     placeholder="Enter your password"
                   />
-                  <span 
-                    onClick={() => setShowPassword(!showPassword)} 
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
                     className={`password-toggle-icon bi ${showPassword ? 'bi-eye' : 'bi-eye-slash'}`}
                   ></span>
                 </div>
@@ -112,15 +106,15 @@ const Login = ({ onLogin }) => {
               <div className="text-end mb-3">
                 <a href="#" className="login-link">Forgot Password?</a>
               </div>
-              
+
               {error && (
                 <div className="alert alert-danger py-2" role="alert">
                   {error}
                 </div>
               )}
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 className="btn btn-primary w-100 login-btn-main mb-3"
                 disabled={loading}
               >
@@ -130,15 +124,15 @@ const Login = ({ onLogin }) => {
                 {loading ? 'Logging in...' : 'Log In'}
               </button>
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-outline-secondary w-100 login-btn-google d-flex align-items-center justify-content-center"
               >
-                <svg className="me-2" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.6404 9.18219C17.6404 8.54589 17.5823 7.93671 17.4776 7.35474H9V10.8458H13.8438C13.6363 11.9702 13.0009 12.9233 12.0478 13.5613V15.8198H14.9562C16.6582 14.2527 17.6404 11.9455 17.6404 9.18219Z" fill="#4285F4"/><path d="M9 18C11.43 18 13.4672 17.1941 14.9562 15.8198L12.0478 13.5613C11.2418 14.1013 10.2112 14.4202 9 14.4202C6.65591 14.4202 4.67182 12.8371 3.96409 10.71H0.955566V13.0418C2.43727 15.9832 5.48182 18 9 18Z" fill="#34A853"/><path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29H0.955566C0.346364 8.36318 0 9.65091 0 11.0218C0 12.3932 0.346364 13.6809 0.955566 14.7541L3.96409 10.71Z" fill="#FBBC05"/><path d="M9 3.57977C10.3214 3.57977 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4672 0.891818 11.43 0 9 0C5.48182 0 2.43727 2.01682 0.955566 4.95818L3.96409 7.29C4.67182 5.16295 6.65591 3.57977 9 3.57977Z" fill="#EA4335"/></svg>
+                <svg className="me-2" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.6404 9.18219C17.6404 8.54589 17.5823 7.93671 17.4776 7.35474H9V10.8458H13.8438C13.6363 11.9702 13.0009 12.9233 12.0478 13.5613V15.8198H14.9562C16.6582 14.2527 17.6404 11.9455 17.6404 9.18219Z" fill="#4285F4" /><path d="M9 18C11.43 18 13.4672 17.1941 14.9562 15.8198L12.0478 13.5613C11.2418 14.1013 10.2112 14.4202 9 14.4202C6.65591 14.4202 4.67182 12.8371 3.96409 10.71H0.955566V13.0418C2.43727 15.9832 5.48182 18 9 18Z" fill="#34A853" /><path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29H0.955566C0.346364 8.36318 0 9.65091 0 11.0218C0 12.3932 0.346364 13.6809 0.955566 14.7541L3.96409 10.71Z" fill="#FBBC05" /><path d="M9 3.57977C10.3214 3.57977 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4672 0.891818 11.43 0 9 0C5.48182 0 2.43727 2.01682 0.955566 4.95818L3.96409 7.29C4.67182 5.16295 6.65591 3.57977 9 3.57977Z" fill="#EA4335" /></svg>
                 Log in with Google
               </button>
             </form>
-            
+
             <div className="mt-4 text-center login-signup-link">
               <p className="mb-0">Don't have an account? <a href="#" onClick={handleSignUpClick} className="login-link fw-semibold">Sign Up</a></p>
             </div>
@@ -168,8 +162,8 @@ const Login = ({ onLogin }) => {
             <div className="modal-content signup-modal-content"> {/* Added class for specific styling */}
               <div className="modal-header signup-modal-header"> {/* Added class for specific styling */}
                 <h5 className="modal-title">Demo Account Credentials</h5>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn-close"
                   onClick={handleCloseSignUpModal}
                   aria-label="Close"
@@ -224,8 +218,8 @@ const Login = ({ onLogin }) => {
                 </p>
               </div>
               <div className="modal-footer signup-modal-footer"> {/* Added class for specific styling */}
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-primary"
                   onClick={handleCloseSignUpModal}
                 >

@@ -25,7 +25,11 @@
     "build:watch": "react-scripts build --watch",
     "test": "react-scripts test",
     "test:watch": "react-scripts test --watchAll",
-    "eject": "react-scripts eject"
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "eject": "react-scripts eject",
+    "lint": "eslint src/**/*.{js,jsx} --quiet",
+    "lint:fix": "eslint src/**/*.{js,jsx} --fix",
+    "format": "prettier --write src/**/*.{js,jsx,css,md}"
   },
   "eslintConfig": {
     "extends": [

@@ -9,16 +9,24 @@
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "client:dev": "cd client && npm start",
     "client:build": "cd client && npm run build",
+    "client:build:watch": "cd client && npm run build:watch",
     "server:dev": "cd server && npm run dev",
     "server:start": "cd server && npm start",
     "db:setup": "cd server && npm run db:setup",
-    "passwords:generate": "cd server && node scripts/generate-user-hashes.js"
+    "passwords:generate": "cd server && node scripts/generate-user-hashes.js",
+    "dev:debug": "concurrently --kill-others-on-fail \"npm run server:debug\" \"npm run client:dev\" --names \"SERVER,CLIENT\" --prefix-colors \"blue,green\"",
+    "server:debug": "cd server && npm run debug",
+    "watch": "npm run client:build:watch",
+    "test": "cd client && npm test",
+    "test:server": "cd server && npm test",
+    "lint": "cd client && npm run lint && cd ../server && npm run lint",
+    "clean": "rimraf client/build server/dist node_modules client/node_modules server/node_modules",
+    "heroku-postbuild": "npm run install:all && npm run client:build"
   },
-  "dependencies": {
-    "react-router-dom": "^7.6.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "concurrently": "^7.6.0",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "rimraf": "^3.0.2"
   }
 }

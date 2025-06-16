@@ -51,33 +51,191 @@ DB_PASSWORD=your_password
 JWT_SECRET=your_jwt_secret_key
 ```
 
-## Available Commands
-```bash
-npm start                    # Start both servers with auto-reload
-npm run install:all          # Install all dependencies
-npm run db:setup             # Setup database schema & demo data
-npm run client:dev           # Frontend only
-npm run server:dev           # Backend only
-npm run client:build         # Build for production
-npm run passwords:generate   # Regenerate user password hashes
-```
+## 📁 Project Structure
 
-## Project Structure
+### Overview
+This is a full-stack healthcare management application with a React frontend and Node.js/Express backend.
+
+### Root Directory
 ```
 my-health-plan/
-├── client/            # React frontend
-├── server/            # Express backend
-├── database/          # SQL schema & demo data
-└── README.md
+├── client/                 # React frontend application
+├── server/                 # Node.js backend application
+├── database/              # Database schema and seed data
+├── package.json           # Root package configuration
+└── README.md             # Project documentation
 ```
 
-## Features
-- User authentication with JWT
-- Responsive Bootstrap UI
-- Clean header navigation with icons
-- User profile dropdown
-- Modern blue theme
-- Mobile-friendly design
+### Client Structure (React Frontend)
+```
+client/
+├── public/               # Static assets
+├── src/
+│   ├── components/       # React components
+│   │   ├── Dashboard.js
+│   │   ├── Header.js
+│   │   ├── Login.js
+│   │   └── Member.js
+│   ├── constants/        # Application constants
+│   │   └── index.js
+│   ├── hooks/           # Custom React hooks
+│   │   └── useAuth.js
+│   ├── services/        # API service layer
+│   │   ├── apiService.js
+│   │   ├── authService.js
+│   │   └── memberService.js
+│   ├── utils/           # Utility functions
+│   │   └── helpers.js
+│   ├── App.js           # Main App component
+│   ├── App.css          # Application styles
+│   └── index.js         # Application entry point
+└── package.json         # Client dependencies
+```
+
+### Server Structure (Node.js Backend)
+```
+server/
+├── controllers/         # Request handlers (organized by feature)
+├── db/                 # Database configuration
+│   ├── connection.js   # Database connection
+│   └── migrations/     # Database migrations
+├── middleware/         # Express middleware
+│   ├── auth.js        # Authentication middleware
+│   └── errorHandler.js # Error handling middleware
+├── models/            # Data models
+│   ├── BaseModel.js   # Base model class
+│   ├── User.js        # User model
+│   └── Member.js      # Member model
+├── routes/            # API routes
+│   ├── auth.js        # Authentication routes
+│   └── dashboard.js   # Dashboard routes
+├── scripts/           # Utility scripts
+│   ├── db-setup.js    # Database setup
+│   └── generate-user-hashes.js # Password hashing
+├── utils/             # Utility functions
+│   ├── constants.js   # Server constants
+│   └── helpers.js     # Helper functions
+├── server.js          # Main server file
+└── package.json       # Server dependencies
+```
+
+## 🏗️ Architecture & Features
+
+### Frontend (React)
+- **Modern React**: Uses hooks, functional components
+- **Service Layer**: Centralized API calls with error handling
+- **Authentication**: JWT-based authentication with auto-refresh
+- **Constants**: Centralized configuration and constants
+- **Utilities**: Common helper functions
+- **Responsive Design**: Bootstrap-based responsive UI
+
+### Backend (Node.js/Express)
+- **MVC Architecture**: Organized controllers, models, and routes
+- **Database Layer**: PostgreSQL with connection pooling
+- **Authentication**: JWT tokens with refresh capability
+- **Error Handling**: Centralized error handling middleware
+- **Security**: Input validation, rate limiting, CORS
+- **Modular Design**: Reusable models and utilities
+
+## 🔧 Available Scripts
+
+### Root Level Commands
+```bash
+npm start                    # Start both frontend and backend in development mode
+npm run dev                  # Same as npm start
+npm run install:all          # Install all dependencies (client + server)
+npm run client:dev           # Start only the frontend
+npm run server:dev           # Start only the backend
+npm run client:build         # Build React app for production
+npm run client:build:watch   # Build with watch mode
+npm run db:setup             # Initialize database with schema and seed data
+npm run passwords:generate   # Regenerate user password hashes
+npm run dev:debug            # Start with server debugging enabled
+npm run watch                # Watch mode for client builds
+npm run test                 # Run all tests
+npm run test:server          # Run server tests
+npm run lint                 # Run linting on both client and server
+npm run clean                # Clean all build artifacts and node_modules
+npm run heroku-postbuild     # Production build for deployment
+```
+
+### Client-Specific Commands
+```bash
+cd client
+npm start                    # Start React development server
+npm run build                # Create production build
+npm run build:watch          # Build with file watching
+npm test                     # Run React tests
+npm run test:watch           # Run tests in watch mode
+npm run test:coverage        # Run tests with coverage report
+npm run lint                 # Run ESLint
+npm run lint:fix             # Fix ESLint issues automatically
+npm run format               # Format code with Prettier
+```
+
+### Server-Specific Commands
+```bash
+cd server
+npm start                    # Start production server
+npm run dev                  # Start with nodemon for development
+npm run debug                # Start with debugging enabled
+npm run db:setup             # Setup database
+npm run db:migrate           # Run database migrations
+npm run db:seed              # Seed database with test data
+npm test                     # Run server tests
+npm run test:watch           # Run tests in watch mode
+npm run test:coverage        # Run tests with coverage
+npm run lint                 # Run ESLint on server code
+npm run lint:fix             # Fix ESLint issues
+```
+
+## 🌐 Environment Configuration
+
+### Development
+- **Frontend:** http://localhost:3000
+- **Backend:** http://localhost:5000
+- **Database:** PostgreSQL on localhost:5432
+
+### Production
+- Environment variables configured via .env files
+- Database connection via DATABASE_URL
+- JWT secrets properly configured
+- CORS origins restricted
+
+## 🔒 Security Features
+- Passwords hashed with bcrypt (12 rounds)
+- JWT tokens with expiration
+- Input validation and sanitization
+- CORS properly configured
+- Rate limiting on API endpoints
+- Environment variables for sensitive data
+
+## 🗄️ Database Schema
+- **Users table** for authentication
+- **Members table** for healthcare member data
+- **Authorizations table** for healthcare authorizations
+- Proper foreign key relationships
+- Indexes for performance optimization
+
+## 🚀 API Endpoints
+- `POST /api/auth/login` - User authentication
+- `POST /api/auth/logout` - User logout
+- `GET /api/dashboard/stats` - Dashboard statistics
+- `GET /api/dashboard/authorizations` - List authorizations
+- `GET /api/dashboard/member/:id` - Get member details
+- `GET /api/health` - Health check with database connectivity
+
+## 🧪 Testing
+- Unit tests for React components
+- API endpoint testing
+- Database model testing
+- Integration tests for full workflows
+
+## 🚢 Deployment
+- **Frontend:** Optimized build for static hosting
+- **Backend:** Node.js server with PM2 process management
+- **Database:** PostgreSQL with connection pooling
+- **Environment:** Docker containers for consistency
 
 ## Development Workflow
 1. Edit files in `client/` or `server/`

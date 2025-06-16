@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../config';
+import authService from '../services/authService';
+import { NAV_ITEMS } from '../constants';
 
 const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -15,25 +15,15 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
       onNavigate(navItem);
     }
   };
-
   const handleLogoutConfirm = async () => {
     setLoggingOut(true);
-    
+
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        // Call backend logout endpoint
-        await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      }
+      await authService.logout();
     } catch (error) {
-      console.log('Logout error:', error);
+      console.error('Logout error:', error);
       // Continue with logout even if API call fails
     } finally {
-      // Always clear local storage and call parent logout
       setLoggingOut(false);
       setShowLogoutModal(false);
       onLogout();
@@ -44,14 +34,10 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
     setShowLogoutModal(false);
   };
 
-  const navItems = [
-    { name: 'Dashboard', active: activeTab === 'Dashboard' },
-    { name: 'Members', active: activeTab === 'Members' },
-    { name: 'Tasks', active: activeTab === 'Tasks' },
-    { name: 'Providers', active: activeTab === 'Providers' },
-    { name: 'Authorization', active: activeTab === 'Authorization' },
-    { name: 'Faxes', active: activeTab === 'Faxes' }
-  ];
+  const navItems = NAV_ITEMS.map(item => ({
+    ...item,
+    active: activeTab === item.name
+  }));
 
   return (
     <>
@@ -62,11 +48,11 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
             <i className="bi bi-heart-pulse me-2"></i>
             MyHealthPlan
           </span>
-          
+
           {/* Navigation Links */}
           <div className="navbar-nav me-auto">
             {navItems.map((item) => (
-              <button 
+              <button
                 key={item.name}
                 id={item.name === 'Dashboard' ? 'dashboard-menu-btn' : undefined}
                 className={`nav-menu-item me-3 ${item.active ? 'nav-menu-active' : ''}`}
@@ -76,7 +62,7 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
               </button>
             ))}
           </div>
-          
+
           {/* User Dropdown */}
           <div className="navbar-nav ms-auto d-flex align-items-center">
             {/* Header Icons */}
@@ -94,10 +80,10 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
                 <i className="bi bi-question-circle" style={{ fontSize: '18px' }}></i>
               </button>
             </div>
-            
+
             <div className="dropdown">
-              <button 
-                className="btn btn-link text-white dropdown-toggle username-btn d-flex align-items-center" 
+              <button
+                className="btn btn-link text-white dropdown-toggle username-btn d-flex align-items-center"
                 type="button"
                 id="userDropdown"
                 data-bs-toggle="dropdown"
@@ -110,8 +96,8 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
                 <li><span className="dropdown-item-text">Logged in as: {user?.email || 'Unknown'}</span></li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <button 
-                    className="dropdown-item" 
+                  <button
+                    className="dropdown-item"
                     onClick={handleLogoutClick}
                   >
                     <i className="bi bi-box-arrow-right me-2"></i>
@@ -132,9 +118,9 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Confirm Logout</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
+                <button
+                  type="button"
+                  className="btn-close"
                   onClick={handleLogoutCancel}
                 ></button>
               </div>
@@ -142,17 +128,17 @@ const Header = ({ user, onLogout, onNavigate, activeTab = 'Dashboard' }) => {
                 <p>Are you sure you want to log out?</p>
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={handleLogoutCancel}
                   disabled={loggingOut}
                 >
                   Cancel
                 </button>
-                <button 
-                  type="button" 
-                  className="btn btn-primary" 
+                <button
+                  type="button"
+                  className="btn btn-primary"
                   onClick={handleLogoutConfirm}
                   disabled={loggingOut}
                 >

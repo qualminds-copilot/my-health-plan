@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Header from './Header';
-import API_BASE_URL from '../config';
+import apiService from '../services/apiService';
 
 const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const [dashboardStats, setDashboardStats] = useState({
@@ -24,19 +23,14 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
 
       // Fetch dashboard statistics
-      const statsResponse = await axios.get(`${API_BASE_URL}/api/dashboard/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setDashboardStats(statsResponse.data);
+      const statsResponse = await apiService.get('/api/dashboard/stats');
+      setDashboardStats(statsResponse);
 
       // Fetch authorizations for the table
-      const authResponse = await axios.get(`${API_BASE_URL}/api/dashboard/authorizations?limit=50`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setAuthorizations(authResponse.data.data);
+      const authResponse = await apiService.get('/api/dashboard/authorizations?limit=50');
+      setAuthorizations(authResponse.data);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

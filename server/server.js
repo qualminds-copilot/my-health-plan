@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { errorHandler, notFound } = require('./middleware/errorHandler');
 require('dotenv').config();
 
 const app = express();
@@ -41,6 +42,23 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
+
+// Error handling middleware
+app.use(notFound);
+app.use(errorHandler);
+
+// Graceful shutdown handler
+const gracefulShutdown = () => {
+  console.log('Received shutdown signal, closing HTTP server...');
+  const pool = require('./db/connection');
+  pool.end(() => {
+    console.log('Database connection pool closed.');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import Header from './Header';
 import apiService from '../services/apiService';
 
@@ -371,8 +372,19 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
           </div>
         )}
       </div>
-    </div>
-  );
+    </div>);
+};
+
+Dashboard.propTypes = {
+  user: PropTypes.shape({
+    id: PropTypes.number,
+    email: PropTypes.string,
+    fullName: PropTypes.string,
+    role: PropTypes.string,
+  }).isRequired,
+  onLogout: PropTypes.func.isRequired,
+  onMemberClick: PropTypes.func.isRequired,
+  onNavigate: PropTypes.func.isRequired,
 };
 
 export default Dashboard;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import authService from '../services/authService';
 
 const Login = ({ onLogin }) => {
@@ -230,8 +231,11 @@ const Login = ({ onLogin }) => {
           </div>
         </div>
       )}
-    </div>
-  );
+    </div>);
+};
+
+Login.propTypes = {
+  onLogin: PropTypes.func.isRequired,
 };
 
 export default Login;

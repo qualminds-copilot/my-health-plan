@@ -1,69 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
+const { asyncHandler } = require('../middleware/errorHandler');
 
 // Get dashboard summary statistics
-router.get('/stats', async (req, res) => {
-  try {
-    const query = `
-      SELECT 
-        COUNT(*) FILTER (WHERE next_review_date::date = CURRENT_DATE) as due_today_count,
-        COUNT(*) FILTER (WHERE priority = 'High') as high_priority_count,
-        COUNT(*) FILTER (WHERE next_review_date::date = CURRENT_DATE) as reminders_count,
-        COUNT(*) FILTER (WHERE admission_date >= date_trunc('week', CURRENT_DATE) 
-                          AND admission_date < date_trunc('week', CURRENT_DATE) + INTERVAL '1 week') as start_this_week_count,
-        COUNT(*) FILTER (WHERE status = 'Pending') as total_pending_count,
-        COUNT(*) FILTER (WHERE status = 'In Review') as total_in_review_count,
-        COUNT(*) FILTER (WHERE status = 'Approved') as total_approved_count,
-        COUNT(*) FILTER (WHERE status = 'Denied') as total_denied_count,
-        COUNT(*) as total_count
-      FROM authorizations
-      WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
-    `;
-    
-    const result = await pool.query(query);
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+router.get('/stats', asyncHandler(async (req, res) => {
+  const query = `
+    SELECT 
+      COUNT(*) FILTER (WHERE next_review_date::date = CURRENT_DATE) as due_today_count,
+      COUNT(*) FILTER (WHERE priority = 'High') as high_priority_count,
+      COUNT(*) FILTER (WHERE next_review_date::date = CURRENT_DATE) as reminders_count,
+      COUNT(*) FILTER (WHERE admission_date >= date_trunc('week', CURRENT_DATE) 
+                        AND admission_date < date_trunc('week', CURRENT_DATE) + INTERVAL '1 week') as start_this_week_count,
+      COUNT(*) FILTER (WHERE status = 'Pending') as total_pending_count,
+      COUNT(*) FILTER (WHERE status = 'In Review') as total_in_review_count,
+      COUNT(*) FILTER (WHERE status = 'Approved') as total_approved_count,
+      COUNT(*) FILTER (WHERE status = 'Denied') as total_denied_count,
+      COUNT(*) as total_count
+    FROM authorizations
+    WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+  `;
+
+  const result = await pool.query(query);
+  res.json(result.rows[0]);
+}));
 
 // Get authorizations for the main table
 router.get('/authorizations', async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 50, 
+    const {
+      page = 1,
+      limit = 50,
       status,
       priority,
       due_today,
-      search 
+      search
     } = req.query;
-    
+
     const offset = (page - 1) * limit;
-    
+
     let whereConditions = [];
     let queryParams = [];
     let paramCount = 0;
-    
+
     // Add filters
     if (status) {
       paramCount++;
       whereConditions.push(`a.status = $${paramCount}`);
       queryParams.push(status);
     }
-    
+
     if (priority) {
       paramCount++;
       whereConditions.push(`a.priority = $${paramCount}`);
       queryParams.push(priority);
     }
-    
+
     if (due_today === 'true') {
       whereConditions.push(`a.next_review_date::date = CURRENT_DATE`);
     }
-    
+
     if (search) {
       paramCount++;
       whereConditions.push(`(
@@ -74,11 +70,11 @@ router.get('/authorizations', async (req, res) => {
       )`);
       queryParams.push(`%${search}%`);
     }
-    
-    const whereClause = whereConditions.length > 0 
-      ? `WHERE ${whereConditions.join(' AND ')}` 
+
+    const whereClause = whereConditions.length > 0
+      ? `WHERE ${whereConditions.join(' AND ')}`
       : '';
-    
+
     const query = `
       SELECT 
         a.id,
@@ -127,11 +123,11 @@ router.get('/authorizations', async (req, res) => {
         a.received_date DESC
       LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;
-    
+
     queryParams.push(limit, offset);
-    
+
     const result = await pool.query(query, queryParams);
-    
+
     // Get total count for pagination
     const countQuery = `
       SELECT COUNT(*) as total
@@ -142,12 +138,12 @@ router.get('/authorizations', async (req, res) => {
       LEFT JOIN drg_codes drg ON a.drg_code_id = drg.id
       ${whereClause}
     `;
-    
+
     const countResult = await pool.query(
-      countQuery, 
+      countQuery,
       queryParams.slice(0, -2) // Remove limit and offset
     );
-    
+
     res.json({
       data: result.rows,
       pagination: {
@@ -202,7 +198,7 @@ router.get('/member/:memberNumber', async (req, res) => {
 router.get('/authorizations/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const query = `
       SELECT 
         a.*,
@@ -227,13 +223,13 @@ router.get('/authorizations/:id', async (req, res) => {
       LEFT JOIN drg_codes drg ON a.drg_code_id = drg.id
       WHERE a.id = $1
     `;
-    
+
     const result = await pool.query(query, [id]);
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Authorization not found' });
     }
-    
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching authorization details:', error);

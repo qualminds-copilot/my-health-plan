@@ -25,6 +25,8 @@
     "jsonwebtoken": "^9.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0"
   }
 }

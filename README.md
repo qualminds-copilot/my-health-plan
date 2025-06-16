@@ -36,31 +36,47 @@ my_health_plan/
 └── README.md
 ```
 
-## Setup Instructions
+## Quick Start (One Command Setup)
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- PostgreSQL
-- npm or yarn
+- Node.js (v16 or higher)
+- PostgreSQL server running
+- npm
 
-### Database Setup
-1. Create a PostgreSQL database named `my_health_plan`
-2. Run the SQL script: `database/01_users_table.sql`
+### Simple Development Setup
 
-### Backend Setup
-1. Navigate to server directory: `cd server`
-2. Install dependencies: `npm install`
-3. Create `.env` file with your database credentials
-4. Start server: `npm start` (runs on port 5000)
+1. **Clone and navigate to the project**:
+   ```bash
+   cd my-health-plan
+   ```
 
-### Frontend Setup
-1. Navigate to client directory: `cd client`
-2. Install dependencies: `npm install`
-3. Start development server: `npm start` (runs on port 3000)
+2. **Install all dependencies**:
+   ```bash
+   npm run install:all
+   ```
 
-## Environment Variables
+3. **Setup database** (one-time only):
+   ```bash
+   npm run db:setup
+   ```
 
-Create a `.env` file in the `server` directory:
+4. **Start development environment**:
+   ```bash
+   npm start
+   ```
+
+That's it! This single command will:
+- Start the backend server on port 5000 with auto-reload
+- Start the frontend development server on port 3000 with auto-reload
+- Enable hot reloading for both frontend and backend changes
+
+### Health Check
+- Backend health check (includes DB connectivity): http://localhost:5000/api/health
+- Frontend application: http://localhost:3000
+
+## Environment Configuration
+
+The server will automatically look for a `.env` file in the `server` directory. Create one with your database credentials:
 
 ```
 DB_HOST=localhost
@@ -72,13 +88,23 @@ JWT_SECRET=your_jwt_secret_key
 PORT=5000
 ```
 
-## Usage
+## Available Scripts
 
-1. Start the backend server (port 5000)
-2. Start the frontend development server (port 3000)
-3. Open browser to `http://localhost:3000`
-4. Login with any demo user credentials
-5. Explore the dashboard and navigation
+From the root directory:
+
+- `npm start` - Start both frontend and backend with auto-reload
+- `npm run install:all` - Install dependencies for root, client, and server
+- `npm run db:setup` - Setup database schema and demo data (one-time)
+- `npm run client:dev` - Start only the frontend
+- `npm run server:dev` - Start only the backend
+- `npm run client:build` - Build frontend for production
+
+## Development Workflow
+
+1. Make changes to either frontend (`client/` folder) or backend (`server/` folder)
+2. Changes are automatically detected and servers restart/reload
+3. No need to manually restart servers during development
+4. Use the health check endpoint to verify backend and database connectivity
 
 ## Design Features
 
@@ -91,6 +117,14 @@ PORT=5000
 
 ## Development
 
-This is a demo application focused on visual presentation and navigation. The backend provides basic authentication and user data, while the frontend demonstrates modern React/Bootstrap UI patterns.
+This is a streamlined demo application focused on developer experience and modern UI patterns. The development workflow has been optimized for:
+
+- **Single Command Start**: Everything runs with `npm start`
+- **Auto-reload**: Both frontend and backend restart automatically on file changes  
+- **Health Monitoring**: Built-in health check with database connectivity verification
+- **Cross-platform**: Works seamlessly on Windows, macOS, and Linux
+- **Modern Stack**: React frontend with Express backend and PostgreSQL database
+
+The application demonstrates modern React/Bootstrap UI patterns with a focus on clean architecture and developer-friendly workflows.
 
 Created: June 2025

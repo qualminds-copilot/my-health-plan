@@ -13,14 +13,33 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 
+// Enhanced health check with database connectivity
+app.get('/api/health', async (req, res) => {
+  const health = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    server: 'Running',
+    database: 'Unknown'
+  };
+
+  try {
+    // Test database connection
+    const pool = require('./db/connection');
+    const result = await pool.query('SELECT 1 as test');
+    health.database = 'Connected';
+    health.database_test = result.rows[0].test === 1 ? 'Passed' : 'Failed';
+  } catch (error) {
+    health.status = 'WARNING';
+    health.database = 'Disconnected';
+    health.database_error = error.message;
+  }
+
+  res.json(health);
+});
+
 // Catch-all for API routes not found - should be after specific API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
-});
-
-// Basic health check
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Server is running', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {

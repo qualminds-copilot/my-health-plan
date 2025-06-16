@@ -13,46 +13,32 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const [authorizations, setAuthorizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   // Fetch dashboard data on component mount
   useEffect(() => {
-    const abortController = new AbortController();
-    
-    const loadData = async () => {
-      await fetchDashboardData(abortController.signal);
-    };
-    
-    loadData();
-    
-    return () => {
-      abortController.abort();
-    };
-  }, []);
+    const token = localStorage.getItem('token');
+    if (user && token) {
+      fetchDashboardData();
+    }
+  }, [user]);
 
-  const fetchDashboardData = async (signal) => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       // Fetch dashboard statistics
       const statsResponse = await axios.get(`${API_BASE_URL}/api/dashboard/stats`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        signal
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setDashboardStats(statsResponse.data);
 
       // Fetch authorizations for the table
       const authResponse = await axios.get(`${API_BASE_URL}/api/dashboard/authorizations?limit=50`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        signal
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setAuthorizations(authResponse.data.data);
 
     } catch (error) {
-      if (error.name === 'AbortError') {
-        console.log('Request was cancelled');
-        return;
-      }
       console.error('Error fetching dashboard data:', error);
       setError('Failed to load dashboard data');
     } finally {
@@ -106,7 +92,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   const getBadgeColor = (diagnosis) => {
     const colors = {
       'DKA': '#28a745',
-      'CHF': '#28a745', 
+      'CHF': '#28a745',
       'CKD': '#28a745',
       'COPD': '#28a745',
       'UTI': '#28a745',
@@ -125,7 +111,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
     };
     return classes[status] || 'badge bg-secondary';
   };
-  
+
   const handleRowClick = (authorization) => {
     if (onMemberClick) {
       // Create member data from authorization info
@@ -146,7 +132,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
   };
 
   return (
-    <div className="min-vh-100" style={{backgroundColor: '#f8f9fa'}}>
+    <div className="min-vh-100" style={{ backgroundColor: '#f8f9fa' }}>
       <Header user={user} onLogout={onLogout} onNavigate={onNavigate} activeTab="Dashboard" />
 
       {/* Dashboard Content */}
@@ -170,7 +156,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
             </li>
           </ul>
         </div>
-        
+
         {/* Loading State */}
         {loading && (
           <div className="text-center py-5">
@@ -185,7 +171,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
           <div className="alert alert-danger" role="alert">
             <i className="bi bi-exclamation-triangle me-2"></i>
             {error}
-            <button 
+            <button
               className="btn btn-outline-danger btn-sm ms-3"
               onClick={() => fetchDashboardData()}
             >
@@ -201,7 +187,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
               <div className="card text-white summary-card due-today-card">
                 <div className="card-body d-flex align-items-center">
                   <div className="me-3">
-                    <i className="bi bi-calendar-check" style={{fontSize: '2.5rem'}}></i>
+                    <i className="bi bi-calendar-check" style={{ fontSize: '2.5rem' }}></i>
                   </div>
                   <div>
                     <h2 className="card-title mb-1">{dashboardStats.due_today_count || 0}</h2>
@@ -214,7 +200,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
               <div className="card text-white summary-card high-priority-card">
                 <div className="card-body d-flex align-items-center">
                   <div className="me-3">
-                    <i className="bi bi-exclamation-triangle" style={{fontSize: '2.5rem'}}></i>
+                    <i className="bi bi-exclamation-triangle" style={{ fontSize: '2.5rem' }}></i>
                   </div>
                   <div>
                     <h2 className="card-title mb-1">{dashboardStats.high_priority_count || 0}</h2>
@@ -227,7 +213,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
               <div className="card summary-card bg-light">
                 <div className="card-body d-flex align-items-center">
                   <div className="me-3">
-                    <i className="bi bi-bell text-muted" style={{fontSize: '2.5rem'}}></i>
+                    <i className="bi bi-bell text-muted" style={{ fontSize: '2.5rem' }}></i>
                   </div>
                   <div>
                     <h2 className="card-title mb-1 text-dark">{dashboardStats.reminders_count || 0}</h2>
@@ -240,7 +226,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
               <div className="card summary-card bg-light">
                 <div className="card-body d-flex align-items-center">
                   <div className="me-3">
-                    <i className="bi bi-calendar-week text-muted" style={{fontSize: '2.5rem'}}></i>
+                    <i className="bi bi-calendar-week text-muted" style={{ fontSize: '2.5rem' }}></i>
                   </div>
                   <div>
                     <h2 className="card-title mb-1 text-dark">{dashboardStats.start_this_week_count || 0}</h2>
@@ -267,7 +253,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                 <table className="table table-hover mb-0">
                   <thead className="table-light">
                     <tr>
-                      <th style={{width: '40px'}}></th>
+                      <th style={{ width: '40px' }}></th>
                       <th>Priority <i className="bi bi-caret-down-fill small"></i></th>
                       <th>Authorization #</th>
                       <th>Received Date</th>
@@ -297,7 +283,7 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                     ) : (
                       authorizations.map((auth, index) => (
                         <tr key={auth.id} className={index === 0 ? "selected" : ""} onClick={() => handleRowClick(auth)}>
-                          <td id="member_number" style={{display: 'none'}}>{auth.member_number}</td>
+                          <td id="member_number" style={{ display: 'none' }}>{auth.member_number}</td>
                           <td className="cell-indicator">
                             {index === 0 && <i className="bi bi-play-fill text-primary"></i>}
                           </td>
@@ -318,9 +304,9 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                             <small>{auth.admission_date ? formatDate(auth.admission_date) : 'N/A'}</small>
                           </td>
                           <td className="cell-diagnosis">
-                            <span 
-                              className="badge" 
-                              style={{backgroundColor: getBadgeColor(auth.diagnosis_code), color: 'white'}}
+                            <span
+                              className="badge"
+                              style={{ backgroundColor: getBadgeColor(auth.diagnosis_code), color: 'white' }}
                             >
                               {auth.diagnosis_code || 'N/A'}
                             </span>
@@ -351,11 +337,11 @@ const Dashboard = ({ user, onLogout, onMemberClick, onNavigate }) => {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Pagination */}
               <div className="d-flex justify-content-between align-items-center p-3 border-top">
                 <div className="d-flex align-items-center">
-                  <select className="form-select form-select-sm" style={{width: 'auto'}}>
+                  <select className="form-select form-select-sm" style={{ width: 'auto' }}>
                     <option>10 per page</option>
                     <option>25 per page</option>
                     <option>50 per page</option>

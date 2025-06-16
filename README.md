@@ -26,8 +26,12 @@ npm start              # Start both frontend & backend
 - **Auth**: JWT + bcrypt
 
 ## Demo Login
-- **Email**: admin@example.com, manager@example.com, user@example.com
-- **Password**: password123
+All users use the password: **password123**
+
+- **admin@myhealthplan.com** (System Administrator - Admin)
+- **maria.hartsell@myhealthplan.com** (Maria Hartsell - Admin)  
+- **john.doe@myhealthplan.com** (John Doe - User)
+- **jane.smith@myhealthplan.com** (Jane Smith - User)
 
 ## Development Features
 - ✅ **Auto-reload**: Both frontend and backend restart on file changes
@@ -49,12 +53,13 @@ JWT_SECRET=your_jwt_secret_key
 
 ## Available Commands
 ```bash
-npm start              # Start both servers with auto-reload
-npm run install:all    # Install all dependencies
-npm run db:setup       # Setup database schema & demo data
-npm run client:dev     # Frontend only
-npm run server:dev     # Backend only
-npm run client:build   # Build for production
+npm start                    # Start both servers with auto-reload
+npm run install:all          # Install all dependencies
+npm run db:setup             # Setup database schema & demo data
+npm run client:dev           # Frontend only
+npm run server:dev           # Backend only
+npm run client:build         # Build for production
+npm run passwords:generate   # Regenerate user password hashes
 ```
 
 ## Project Structure
@@ -95,6 +100,26 @@ my-health-plan/
 - Save files (Ctrl+S)
 - Check terminal for errors
 - Restart: Ctrl+C then `npm start`
+
+## Password Management
+
+### 🔒 Simple Password System
+All users share the same password: **`password123`**
+
+### 🛠️ Password Commands
+```bash
+npm run passwords:generate   # Regenerate password hashes if needed
+```
+
+### 🔧 How It Works
+- Uses bcrypt with 10 salt rounds for security
+- Automatically updates `database/data.sql` when regenerated
+- All users get the same password for simplicity
+
+### 🚨 When to Regenerate
+- If you change the default password in the script
+- If login authentication stops working
+- After modifying the user list in the script
 
 ---
 Created: June 2025 | Optimized for developer experience

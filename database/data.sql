@@ -81,11 +81,12 @@ INSERT INTO public.providers (id, provider_code, provider_name, provider_type, a
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+
 INSERT INTO public.users (id, username, email, password_hash, full_name, role, created_at, updated_at) VALUES
-(1, 'maria.hartsell', 'maria.hartsell@myhealthplan.com', '$2b$10$rQZ5vEd8.5J5K5Jn5xJ5Ke5J5K5J5K5J5K5J5K5J5K5J5K5J5K5J5K', 'Maria Hartsell', 'admin', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
-(2, 'john.doe', 'john.doe@myhealthplan.com', '$2b$10$rQZ5vEd8.5J5K5Jn5xJ5Ke5J5K5J5K5J5K5J5K5J5K5J5K5J5K5J5K', 'John Doe', 'user', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
-(3, 'jane.smith', 'jane.smith@myhealthplan.com', '$2b$10$rQZ5vEd8.5J5K5Jn5xJ5Ke5J5K5J5K5J5K5J5K5J5K5J5K5J5K5J5K', 'Jane Smith', 'user', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
-(4, 'admin', 'admin@myhealthplan.com', '$2b$10$rQZ5vEd8.5J5K5Jn5xJ5Ke5J5K5J5K5J5K5J5K5J5K5J5K5J5K5J5K', 'System Administrator', 'admin', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214');
+(1, 'admin', 'admin@myhealthplan.com', '$2b$10$UkbPFVCy7mrJrOjaQ4V4OeVkH7.i6/IAML2k1n9o.7efwpUScN.VW', 'System Administrator', 'admin', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
+(2, 'maria.hartsell', 'maria.hartsell@myhealthplan.com', '$2b$10$UkbPFVCy7mrJrOjaQ4V4OeVkH7.i6/IAML2k1n9o.7efwpUScN.VW', 'Maria Hartsell', 'admin', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
+(3, 'john.doe', 'john.doe@myhealthplan.com', '$2b$10$UkbPFVCy7mrJrOjaQ4V4OeVkH7.i6/IAML2k1n9o.7efwpUScN.VW', 'John Doe', 'user', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214'),
+(4, 'jane.smith', 'jane.smith@myhealthplan.com', '$2b$10$UkbPFVCy7mrJrOjaQ4V4OeVkH7.i6/IAML2k1n9o.7efwpUScN.VW', 'Jane Smith', 'user', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214');
 
 
 --

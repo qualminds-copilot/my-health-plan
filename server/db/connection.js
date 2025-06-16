@@ -12,10 +12,10 @@ if (process.env.NODE_ENV === 'production') {
   });
 } else {
   pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME || 'my_health_plan',
+    user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
   });
 }

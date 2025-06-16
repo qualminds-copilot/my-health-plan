@@ -3,35 +3,30 @@
 ## Quick Start (3 Steps)
 
 ### 1. Prerequisites
-- Node.js (v16+)
-- PostgreSQL server running
+- Node.js (v14+)
+- PostgreSQL (v12+)
 
 ### 2. Install & Configure
 ```bash
-# Navigate to project
+# Clone and install
+git clone <your-repo-url>
 cd my-health-plan
-
-# Install all dependencies (root, client, server)
 npm run install:all
 
-# Setup environment (create server/.env with your PostgreSQL credentials)
+# Setup environment
 cd server
-# Create .env file with DB_HOST, DB_USER, DB_PASSWORD, etc.
+cp .env.example .env
+# Edit .env with your PostgreSQL credentials
 ```
 
 ### 3. Run
 ```bash
 # Setup database (run once)
-npm run db:setup
+npm run setup
 
-# Start both frontend and backend with auto-reload
-npm start
+# Start application
+npm run dev
 ```
-
-That's it! 
-- Frontend: http://localhost:3000
-- Backend: http://localhost:5000
-- Health check: http://localhost:5000/api/health
 
 **That's it!** 🎉
 

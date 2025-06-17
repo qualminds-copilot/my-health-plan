@@ -65,6 +65,8 @@ process.on('SIGINT', gracefulShutdown);
 async function startServer() {
   try {
     console.log('🚀 Starting MyHealthPlan server...');
+    console.log('Environment:', process.env.NODE_ENV || 'development');
+    console.log('Port:', PORT);
 
     // Auto-setup database on first run
     console.log('🗄️  Checking database setup...');
@@ -77,7 +79,8 @@ async function startServer() {
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
-    console.error('💡 Make sure PostgreSQL is running and credentials in .env are correct');
+    console.error('Error stack:', error.stack);
+    console.error('💡 Database connection issue. Check DATABASE_URL in production or .env in development');
     process.exit(1);
   }
 }

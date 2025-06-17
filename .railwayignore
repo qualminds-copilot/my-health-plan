@@ -1,0 +1,27 @@
+# Ignore development files
+client/src/
+client/public/
+client/package.json
+client/package-lock.json
+client/.gitignore
+client/README.md
+
+# Ignore development tools
+.git/
+.gitignore
+README.md
+.vscode/
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore test files
+*.test.js
+test/
+__tests__/
+
+# Keep only necessary production files
+!server/
+!package.json
+!railway.json

@@ -23,13 +23,25 @@ class DatabaseCLI {
     constructor() {
         this.migrationsDir = path.join(__dirname, '..', 'db', 'migrations');
         this.seedsDir = path.join(__dirname, '..', 'db', 'seeds');
-        this.dbConfig = {
-            host: process.env.DB_HOST || 'localhost',
-            port: process.env.DB_PORT || 5432,
-            user: process.env.DB_USER || 'postgres',
-            password: process.env.DB_PASSWORD,
-        };
-        this.dbName = process.env.DB_NAME || 'my_health_plan';
+
+        // In production, use the DATABASE_URL directly
+        if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+            this.dbConfig = {
+                connectionString: process.env.DATABASE_URL,
+                ssl: {
+                    rejectUnauthorized: false
+                }
+            };
+            this.dbName = null; // Not needed in production
+        } else {
+            this.dbConfig = {
+                host: process.env.DB_HOST || 'localhost',
+                port: process.env.DB_PORT || 5432,
+                user: process.env.DB_USER || 'postgres',
+                password: process.env.DB_PASSWORD,
+            };
+            this.dbName = process.env.DB_NAME || 'my_health_plan';
+        }
     }
 
     /**
@@ -264,39 +276,73 @@ class DatabaseCLI {
 
 `;
 
-        await fs.writeFile(filepath, template);
-        console.log(`✅ Created migration: ${filename}`);
+        await fs.writeFile(filepath, template); console.log(`✅ Created migration: ${filename}`);
     }
 
     /**
      * Command: setup
-     */
-    async setup() {
-        console.log('🔧 Setting up database...');
-
-        // Create database if needed
-        const adminClient = new Client(this.dbConfig);
+     */    async setup() {
         try {
-            await adminClient.connect();
-            const result = await adminClient.query(
-                'SELECT 1 FROM pg_database WHERE datname = $1', [this.dbName]
-            );
+            console.log('🔧 Setting up database...');
 
-            if (result.rows.length === 0) {
-                console.log(`🔨 Creating database: ${this.dbName}`);
-                await adminClient.query(`CREATE DATABASE "${this.dbName}"`);
-                console.log(`✅ Database created: ${this.dbName}`);
+            // Skip database creation in production (Railway, Heroku, etc.)
+            if (process.env.NODE_ENV === 'production') {
+                console.log('✅ Production environment - skipping database creation');
+                // Test connection first in production
+                await this.testConnection();
             } else {
-                console.log(`✅ Database exists: ${this.dbName}`);
-            }
-        } finally {
-            await adminClient.end();
-        }
+                // Create database if needed (development only)
+                const adminClient = new Client(this.dbConfig);
+                try {
+                    await adminClient.connect();
+                    const result = await adminClient.query(
+                        'SELECT 1 FROM pg_database WHERE datname = $1', [this.dbName]
+                    );
 
-        // Run migrations and seeds
-        await this.migrate();
-        await this.seed();
-        console.log('🎉 Database setup completed');
+                    if (result.rows.length === 0) {
+                        console.log(`🔨 Creating database: ${this.dbName}`);
+                        await adminClient.query(`CREATE DATABASE "${this.dbName}"`);
+                        console.log(`✅ Database created: ${this.dbName}`);
+                    } else {
+                        console.log(`✅ Database exists: ${this.dbName}`);
+                    }
+                } finally {
+                    await adminClient.end();
+                }
+                
+                // Test connection after database creation/verification
+                await this.testConnection();
+            }
+
+            // Run migrations and seeds
+            await this.migrate();
+            await this.seed();
+            console.log('🎉 Database setup completed');
+        } catch (error) {
+            console.error('❌ Database setup failed:', error.message);
+            console.error('Stack trace:', error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * Test database connection
+     */
+    async testConnection() {
+        console.log('🔍 Testing database connection...');
+        const client = await pool.connect();
+        try {
+            const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
+            console.log('✅ Database connection successful');
+            console.log(`📅 Database time: ${result.rows[0].current_time}`);
+            console.log(`🐘 PostgreSQL version: ${result.rows[0].pg_version.split(' ')[0]}`);
+            return true;
+        } catch (error) {
+            console.error('❌ Database connection failed:', error.message);
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     /**

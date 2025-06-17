@@ -6,16 +6,16 @@ A streamlined healthcare plan management demo with modern UI and developer-frien
 
 ### Prerequisites
 - Node.js (v16+)
-- PostgreSQL (running)
+- PostgreSQL (running locally or remotely)
 
-### Setup & Run (3 commands)
+### Setup & Run (2 commands)
 ```bash
 npm run install:all    # Install dependencies
-npm run db:setup       # Setup database (one-time)
-npm start              # Start both frontend & backend
+npm start              # Start both frontend & backend (auto-setup database)
 ```
 
 **That's it!** 🎉
+- The database will be automatically created and seeded on first run
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000/api/health
 
@@ -36,6 +36,7 @@ All users use the password: **password123**
 ## Development Features
 - ✅ **Auto-reload**: Both frontend and backend restart on file changes
 - ✅ **Hot reload**: React Fast Refresh for instant UI updates
+- ✅ **Auto-setup**: Database automatically created and seeded on first run
 - ✅ **Health check**: `/api/health` endpoint with DB connectivity test
 - ✅ **Cross-platform**: Works on Windows, macOS, Linux
 - ✅ **Single command**: Everything starts with `npm start`

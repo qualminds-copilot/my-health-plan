@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { setupDatabase } = require('./scripts/db-setup');
 require('dotenv').config();
 
 const app = express();
@@ -60,6 +61,24 @@ const gracefulShutdown = () => {
 process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Initialize database and start server
+async function startServer() {
+  try {
+    console.log('🚀 Starting MyHealthPlan server...');
+
+    // Auto-setup database on first run
+    console.log('🗄️  Checking database setup...');
+    await setupDatabase();
+
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    console.error('💡 Make sure PostgreSQL is running and credentials in .env are correct');
+    process.exit(1);
+  }
+}
+
+startServer();

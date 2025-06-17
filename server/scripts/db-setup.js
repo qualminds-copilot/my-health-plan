@@ -40,6 +40,16 @@ async function setupDatabase() {
         }
     } catch (error) {
         console.error('❌ Error creating database:', error.message);
+        if (error.code === 'ECONNREFUSED') {
+            console.error('💡 Make sure PostgreSQL is running on your system');
+            console.error('   Windows: Check if PostgreSQL service is started');
+            console.error('   Mac: brew services start postgresql');
+            console.error('   Linux: sudo systemctl start postgresql');
+        } else if (error.code === '28P01') {
+            console.error('💡 Authentication failed - check your database credentials in server/.env');
+        } else if (error.code === '3D000') {
+            console.error('💡 Default database connection failed - this is normal on first setup');
+        }
         throw error;
     } finally {
         await adminClient.end();
@@ -79,9 +89,13 @@ async function setupDatabase() {
         } else {
             console.log('✅ Database already setup');
         }
-
     } catch (error) {
         console.error('❌ Setup failed:', error.message);
+        if (error.code === 'ECONNREFUSED') {
+            console.error('💡 Cannot connect to PostgreSQL. Make sure it is running.');
+        } else if (error.code === '28P01') {
+            console.error('💡 Database authentication failed. Check credentials in server/.env file.');
+        }
         throw error;
     } finally {
         await dbClient.end();

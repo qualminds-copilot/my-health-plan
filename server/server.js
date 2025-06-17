@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
-const { setupDatabase } = require('./scripts/db-setup');
+const DatabaseCLI = require('./scripts/db');
 require('dotenv').config();
 
 const app = express();
@@ -68,7 +68,8 @@ async function startServer() {
 
     // Auto-setup database on first run
     console.log('🗄️  Checking database setup...');
-    await setupDatabase();
+    const db = new DatabaseCLI();
+    await db.setup();
 
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);

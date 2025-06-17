@@ -185,7 +185,6 @@ server/
 ├── controllers/         # Request handlers (organized by feature)
 ├── db/                 # Database layer
 │   ├── connection.js   # Database connection
-│   ├── migrator.js     # Migration engine
 │   ├── migrations/     # SQL migration files
 │   │   └── YYYYMMDDHHMMSS_description.sql
 │   └── seeds/          # Database seed data
@@ -201,14 +200,8 @@ server/
 │   ├── auth.js        # Authentication routes
 │   └── dashboard.js   # Dashboard routes
 ├── scripts/           # Database & utility scripts
-│   ├── db-setup.js    # Database setup & initialization
-│   ├── migrate.js     # Migration runner
-│   ├── seed.js        # Seed data runner
-│   ├── migration-manager.js  # Create migrations & status
-│   ├── migration-check.js    # System health check
-│   └── generate-user-hashes.js # Password utilities
-│   ├── db-setup.js    # Database setup
-│   └── generate-user-hashes.js # Password hashing
+│   ├── db.js          # Unified database CLI (migrations, seeds, setup)
+│   └── generate-user-hashes.js # Password hashing utilities
 ├── utils/             # Utility functions
 │   ├── constants.js   # Server constants
 │   └── helpers.js     # Helper functions

@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS dashboard_stats (
 );
 
 -- Create Authorization Summary View
-CREATE VIEW authorization_summary AS
+CREATE OR REPLACE VIEW authorization_summary AS
 SELECT 
     a.id,
     a.authorization_number,

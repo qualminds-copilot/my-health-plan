@@ -37,9 +37,96 @@ All users use the password: **password123**
 - ✅ **Auto-reload**: Both frontend and backend restart on file changes
 - ✅ **Hot reload**: React Fast Refresh for instant UI updates
 - ✅ **Auto-setup**: Database automatically created and seeded on first run
+- ✅ **Migration System**: Versioned database schema management
 - ✅ **Health check**: `/api/health` endpoint with DB connectivity test
 - ✅ **Cross-platform**: Works on Windows, macOS, Linux
 - ✅ **Single command**: Everything starts with `npm start`
+
+## Database Migration System
+
+This project uses a **lightweight, SQL-based migration system** for reliable database management without external dependencies.
+
+### Key Features
+- ✅ **Lightweight**: Pure SQL migrations, no complex ORMs
+- ✅ **Versioned**: Timestamp-based migration versioning
+- ✅ **Trackable**: Migration history stored in database
+- ✅ **Transactional**: Each migration runs in a transaction
+- ✅ **CI/CD Ready**: Automatic deployment integration
+
+### Quick Commands
+```bash
+# Database setup (first time)
+npm run db:setup         # Creates DB + runs migrations + seeds
+
+# Daily development
+npm run db:status        # Check migration status
+npm run db:migrate       # Run pending migrations
+cd server && npm run db:create "description"  # Create new migration
+
+# Production (runs automatically in CI/CD)
+npm run db:migrate       # Safe for production deployment
+```
+
+### Migration Workflow
+
+1. **Create a migration:**
+   ```bash
+   cd server
+   npm run db:create "add_user_preferences"
+   ```
+
+2. **Edit the generated file:**
+   ```sql
+   -- server/db/migrations/20241217120000_add_user_preferences.sql
+   CREATE TABLE user_preferences (
+       id SERIAL PRIMARY KEY,
+       user_id INTEGER NOT NULL,
+       preference_key VARCHAR(100) NOT NULL,
+       preference_value TEXT,
+       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+       FOREIGN KEY (user_id) REFERENCES users(id)
+   );
+   ```
+
+3. **Run the migration:**
+   ```bash
+   npm run db:migrate
+   ```
+
+### Migration System Structure
+```
+server/db/
+├── migrator.js                          # Migration engine
+├── migrations/
+│   └── YYYYMMDDHHMMSS_description.sql   # Migration files
+└── seeds/
+    └── 001_initial_data.sql             # Seed data
+```
+
+### Environment Variables
+```env
+# Development (.env file)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=my_health_plan
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+# Production (Railway/Heroku)
+DATABASE_URL=postgresql://user:pass@host:port/db
+```
+
+### Production Deployment
+Migrations run **automatically** in GitHub Actions:
+- ✅ Zero-downtime deployments
+- ✅ Automatic rollback on failure
+- ✅ Transaction safety
+- ✅ No manual intervention needed
+
+### Troubleshooting
+- **Connection issues**: Ensure PostgreSQL is running
+- **Permission errors**: Check database user privileges  
+- **Migration conflicts**: Use `npm run db:status` to check state
 
 ## Environment Setup
 Create `server/.env` with your database credentials:
@@ -62,7 +149,6 @@ This is a full-stack healthcare management application with a React frontend and
 my-health-plan/
 ├── client/                 # React frontend application
 ├── server/                 # Node.js backend application
-├── database/              # Database schema and seed data
 ├── package.json           # Root package configuration
 └── README.md             # Project documentation
 ```
@@ -97,9 +183,13 @@ client/
 ```
 server/
 ├── controllers/         # Request handlers (organized by feature)
-├── db/                 # Database configuration
+├── db/                 # Database layer
 │   ├── connection.js   # Database connection
-│   └── migrations/     # Database migrations
+│   ├── migrator.js     # Migration engine
+│   ├── migrations/     # SQL migration files
+│   │   └── YYYYMMDDHHMMSS_description.sql
+│   └── seeds/          # Database seed data
+│       └── 001_initial_data.sql
 ├── middleware/         # Express middleware
 │   ├── auth.js        # Authentication middleware
 │   └── errorHandler.js # Error handling middleware
@@ -110,7 +200,13 @@ server/
 ├── routes/            # API routes
 │   ├── auth.js        # Authentication routes
 │   └── dashboard.js   # Dashboard routes
-├── scripts/           # Utility scripts
+├── scripts/           # Database & utility scripts
+│   ├── db-setup.js    # Database setup & initialization
+│   ├── migrate.js     # Migration runner
+│   ├── seed.js        # Seed data runner
+│   ├── migration-manager.js  # Create migrations & status
+│   ├── migration-check.js    # System health check
+│   └── generate-user-hashes.js # Password utilities
 │   ├── db-setup.js    # Database setup
 │   └── generate-user-hashes.js # Password hashing
 ├── utils/             # Utility functions
@@ -272,7 +368,7 @@ npm run passwords:generate   # Regenerate password hashes if needed
 
 ### 🔧 How It Works
 - Uses bcrypt with 10 salt rounds for security
-- Automatically updates `database/data.sql` when regenerated
+- Outputs SQL for manual database updates or migration creation
 - All users get the same password for simplicity
 
 ### 🚨 When to Regenerate

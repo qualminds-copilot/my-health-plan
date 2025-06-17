@@ -10,9 +10,10 @@
     "db:setup": "node scripts/db-setup.js",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
-    "test": "jest --watchAll=false",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage --watchAll=false",
+    "db:status": "node scripts/migration-manager.js status",
+    "db:create": "node scripts/migration-manager.js create",
+    "db:reset": "npm run db:setup",
+    "db:check": "node scripts/migration-check.js",
     "lint": "eslint . --ext .js --quiet",
     "lint:fix": "eslint . --ext .js --fix"
   },

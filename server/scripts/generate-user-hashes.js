@@ -1,6 +1,4 @@
 const bcrypt = require('bcrypt');
-const fs = require('fs');
-const path = require('path');
 
 // Configuration
 const SALT_ROUNDS = 10;
@@ -32,25 +30,18 @@ async function generateConsistentHashes() {
     // Generate SQL INSERT statement
     const userInserts = USERS.map((user, index) =>
         `(${index + 1}, '${user.username}', '${user.email}', '${hash}', '${user.fullName}', '${user.role}', '2025-06-16 11:38:05.214214', '2025-06-16 11:38:05.214214')`
-    );
+    ); const sqlInsert = `INSERT INTO public.users (id, username, email, password_hash, full_name, role, created_at, updated_at) VALUES\n${userInserts.join(',\n')};`;
 
-    const sqlInsert = `INSERT INTO public.users (id, username, email, password_hash, full_name, role, created_at, updated_at) VALUES\n${userInserts.join(',\n')};`;
+    // Output the SQL for manual use or migration creation
+    console.log('\n📋 Generated SQL INSERT statement:');
+    console.log('=====================================');
+    console.log(sqlInsert);
+    console.log('\n💡 To update passwords in the database:');
+    console.log('1. Use this SQL in a new migration file, or');
+    console.log('2. Run it directly against your database, or');
+    console.log('3. Update the seed file if recreating the database');
 
-    // Update data.sql file
-    const dataSqlPath = path.join(__dirname, '../../database/data.sql');
-    let content = fs.readFileSync(dataSqlPath, 'utf8');
-
-    const userInsertRegex = /INSERT INTO public\.users.*?VALUES[\s\S]*?;/g;
-    if (userInsertRegex.test(content)) {
-        content = content.replace(userInsertRegex, sqlInsert);
-        fs.writeFileSync(dataSqlPath, content);
-        console.log('✅ Updated database/data.sql');
-    } else {
-        console.log('⚠️ Could not update data.sql automatically');
-        console.log('SQL to insert:\n', sqlInsert);
-    }
-
-    console.log(`🎉 Done! All ${USERS.length} users now use password: "${DEFAULT_PASSWORD}"`);
+    console.log(`\n🎉 Done! All ${USERS.length} users now use password: "${DEFAULT_PASSWORD}"`);
 }
 
 // Run if called directly

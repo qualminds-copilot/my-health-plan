@@ -34,6 +34,20 @@ jobs:
         cd server
         npm ci
         
+    - name: Run database migrations (if deploying)
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        cd server
+        npm run db:migrate
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        NODE_ENV: production
+        
     - name: Run tests (if any)
       run: |
         cd server

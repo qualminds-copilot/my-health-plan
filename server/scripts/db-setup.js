@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Simple Database Setup Script
- * Creates database, runs schema, and seeds data if needed
+ * Database Setup Script with Migration System
+ * Creates database and runs migrations/seeds if needed
  */
 
 const { Client } = require('pg');
-const fs = require('fs');
-const path = require('path');
+const Migrator = require('../db/migrator');
 require('dotenv').config();
 
 const config = {
@@ -25,7 +24,7 @@ async function setupDatabase() {
 
     try {
         await adminClient.connect();
-        console.log('Creating database if needed...');
+        console.log('🔍 Checking database existence...');
 
         const result = await adminClient.query(
             'SELECT 1 FROM pg_database WHERE datname = $1',
@@ -34,7 +33,7 @@ async function setupDatabase() {
 
         if (result.rows.length === 0) {
             await adminClient.query(`CREATE DATABASE "${dbName}"`);
-            console.log(`✅ Database ${dbName} created`);
+            console.log(`✅ Database ${dbName} created successfully`);
         } else {
             console.log(`✅ Database ${dbName} already exists`);
         }
@@ -47,73 +46,35 @@ async function setupDatabase() {
             console.error('   Linux: sudo systemctl start postgresql');
         } else if (error.code === '28P01') {
             console.error('💡 Authentication failed - check your database credentials in server/.env');
-        } else if (error.code === '3D000') {
-            console.error('💡 Default database connection failed - this is normal on first setup');
         }
-        throw error;
+        process.exit(1);
     } finally {
         await adminClient.end();
     }
 
-    // Step 2: Setup schema and data
-    const dbClient = new Client({ ...config, database: dbName });
+    // Step 2: Run migrations
+    console.log('\n🚀 Running database migrations...');
+    const migrator = new Migrator();
 
     try {
-        await dbClient.connect();
+        await migrator.migrate();
 
-        // Check if already setup
-        const tableCheck = await dbClient.query(
-            "SELECT 1 FROM information_schema.tables WHERE table_name = 'users'"
-        );
+        // Step 3: Run seeds (only if no data exists)
+        console.log('\n🌱 Checking if seeding is needed...');
+        await migrator.seed();
 
-        if (tableCheck.rows.length === 0) {
-            console.log('Setting up database schema...');
-
-            // Run schema
-            const schemaPath = path.join(__dirname, '..', '..', 'database', 'schema.sql');
-            if (fs.existsSync(schemaPath)) {
-                const schema = fs.readFileSync(schemaPath, 'utf8');
-                await dbClient.query(schema);
-                console.log('✅ Schema created');
-            }
-
-            // Run seed data
-            const dataPath = path.join(__dirname, '..', '..', 'database', 'data.sql');
-            if (fs.existsSync(dataPath)) {
-                const data = fs.readFileSync(dataPath, 'utf8');
-                await dbClient.query(data);
-                console.log('✅ Sample data loaded');
-            }
-
-            console.log('🎉 Database setup completed!');
-        } else {
-            console.log('✅ Database already setup');
-        }
+        console.log('\n🎉 Database setup completed successfully!');
     } catch (error) {
-        console.error('❌ Setup failed:', error.message);
-        if (error.code === 'ECONNREFUSED') {
-            console.error('💡 Cannot connect to PostgreSQL. Make sure it is running.');
-        } else if (error.code === '28P01') {
-            console.error('💡 Database authentication failed. Check credentials in server/.env file.');
-        }
-        throw error;
-    } finally {
-        await dbClient.end();
-    }
-}
-
-async function main() {
-    try {
-        await setupDatabase();
-        process.exit(0);
-    } catch (error) {
-        console.error('Setup failed:', error.message);
+        console.error('❌ Database setup failed:', error.message);
         process.exit(1);
     }
 }
 
 if (require.main === module) {
-    main();
+    setupDatabase().catch(error => {
+        console.error('Fatal error:', error);
+        process.exit(1);
+    });
 }
 
 module.exports = { setupDatabase };

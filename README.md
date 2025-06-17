@@ -95,12 +95,15 @@ npm run db:migrate       # Safe for production deployment
 
 ### Migration System Structure
 ```
-server/db/
-├── migrator.js                          # Migration engine
-├── migrations/
-│   └── YYYYMMDDHHMMSS_description.sql   # Migration files
-└── seeds/
-    └── 001_initial_data.sql             # Seed data
+server/
+├── scripts/
+│   └── db.js                            # Database Management CLI (migration engine)
+└── db/
+    ├── connection.js                    # Database connection pool
+    ├── migrations/
+    │   └── YYYYMMDDHHMMSS_description.sql   # Migration files
+    └── seeds/
+        └── 001_initial_data.sql         # Seed data
 ```
 
 ### Environment Variables

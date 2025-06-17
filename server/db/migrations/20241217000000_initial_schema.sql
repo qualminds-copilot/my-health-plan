@@ -2,16 +2,39 @@
 -- Created: 2024-12-17T00:00:00.000Z
 -- Description: Initial database schema for MyHealthPlan application
 
--- Set up database configuration
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+-- Create the schema_migrations table first if it doesn't exist
+CREATE TABLE IF NOT EXISTS schema_migrations (
+    id SERIAL PRIMARY KEY,
+    version VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    checksum VARCHAR(64),
+    execution_time_ms INTEGER
+);
+
+-- Create index for performance
+CREATE INDEX IF NOT EXISTS idx_schema_migrations_version ON schema_migrations(version);
+
+-- Set up database configuration (only if needed)
+DO $$
+BEGIN
+    -- Only set configuration if we're actually creating tables
+    IF NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users' AND table_schema = 'public') THEN
+        SET statement_timeout = 0;
+        SET lock_timeout = 0;
+        SET idle_in_transaction_session_timeout = 0;
+        SET transaction_timeout = 0;
+        SET client_encoding = 'UTF8';
+        SET standard_conforming_strings = on;
+        SET check_function_bodies = false;
+        SET xmloption = content;
+        SET client_min_messages = warning;
+        SET row_security = off;
+        RAISE NOTICE 'Setting up database configuration for initial schema creation';
+    ELSE
+        RAISE NOTICE 'Tables already exist, skipping configuration setup';
+    END IF;
+END $$;
 
 -- Create dashboard stats update function
 CREATE OR REPLACE FUNCTION update_dashboard_stats() RETURNS void
@@ -57,7 +80,7 @@ $$;
 -- Core Tables
 
 -- Users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -69,7 +92,7 @@ CREATE TABLE users (
 );
 
 -- Members table
-CREATE TABLE members (
+CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
     member_number VARCHAR(50) NOT NULL UNIQUE,
     first_name VARCHAR(100) NOT NULL,
@@ -86,7 +109,7 @@ CREATE TABLE members (
 );
 
 -- Providers table
-CREATE TABLE providers (
+CREATE TABLE IF NOT EXISTS providers (
     id SERIAL PRIMARY KEY,
     provider_code VARCHAR(50) NOT NULL UNIQUE,
     provider_name VARCHAR(255) NOT NULL,
@@ -103,7 +126,7 @@ CREATE TABLE providers (
 );
 
 -- Diagnoses table
-CREATE TABLE diagnoses (
+CREATE TABLE IF NOT EXISTS diagnoses (
     id SERIAL PRIMARY KEY,
     diagnosis_code VARCHAR(20) NOT NULL UNIQUE,
     diagnosis_name VARCHAR(255) NOT NULL,
@@ -115,7 +138,7 @@ CREATE TABLE diagnoses (
 );
 
 -- DRG Codes table
-CREATE TABLE drg_codes (
+CREATE TABLE IF NOT EXISTS drg_codes (
     id SERIAL PRIMARY KEY,
     drg_code VARCHAR(10) NOT NULL UNIQUE,
     drg_description TEXT,
@@ -126,7 +149,7 @@ CREATE TABLE drg_codes (
 );
 
 -- Priority Levels table
-CREATE TABLE priority_levels (
+CREATE TABLE IF NOT EXISTS priority_levels (
     id SERIAL PRIMARY KEY,
     priority_code VARCHAR(20) NOT NULL UNIQUE,
     priority_name VARCHAR(50) NOT NULL,
@@ -137,7 +160,7 @@ CREATE TABLE priority_levels (
 );
 
 -- Review Types table
-CREATE TABLE review_types (
+CREATE TABLE IF NOT EXISTS review_types (
     id SERIAL PRIMARY KEY,
     review_code VARCHAR(50) NOT NULL UNIQUE,
     review_name VARCHAR(100) NOT NULL,
@@ -147,7 +170,7 @@ CREATE TABLE review_types (
 );
 
 -- Status Types table
-CREATE TABLE status_types (
+CREATE TABLE IF NOT EXISTS status_types (
     id SERIAL PRIMARY KEY,
     status_code VARCHAR(50) NOT NULL UNIQUE,
     status_name VARCHAR(100) NOT NULL,
@@ -159,7 +182,7 @@ CREATE TABLE status_types (
 );
 
 -- Authorizations table
-CREATE TABLE authorizations (
+CREATE TABLE IF NOT EXISTS authorizations (
     id SERIAL PRIMARY KEY,
     authorization_number VARCHAR(50) NOT NULL UNIQUE,
     member_id INTEGER NOT NULL,
@@ -194,7 +217,7 @@ CREATE TABLE authorizations (
 );
 
 -- Authorization Documents table
-CREATE TABLE authorization_documents (
+CREATE TABLE IF NOT EXISTS authorization_documents (
     id SERIAL PRIMARY KEY,
     authorization_id INTEGER NOT NULL,
     document_type VARCHAR(100) NOT NULL,
@@ -209,7 +232,7 @@ CREATE TABLE authorization_documents (
 );
 
 -- Authorization History table
-CREATE TABLE authorization_history (
+CREATE TABLE IF NOT EXISTS authorization_history (
     id SERIAL PRIMARY KEY,
     authorization_id INTEGER NOT NULL,
     status_from VARCHAR(50),
@@ -223,7 +246,7 @@ CREATE TABLE authorization_history (
 );
 
 -- Authorization Notes table
-CREATE TABLE authorization_notes (
+CREATE TABLE IF NOT EXISTS authorization_notes (
     id SERIAL PRIMARY KEY,
     authorization_id INTEGER NOT NULL,
     note_type VARCHAR(50) NOT NULL,
@@ -236,7 +259,7 @@ CREATE TABLE authorization_notes (
 );
 
 -- Dashboard Stats table
-CREATE TABLE dashboard_stats (
+CREATE TABLE IF NOT EXISTS dashboard_stats (
     id SERIAL PRIMARY KEY,
     stat_date DATE DEFAULT CURRENT_DATE NOT NULL UNIQUE,
     due_today_count INTEGER DEFAULT 0,
@@ -286,32 +309,56 @@ FROM authorizations a
     LEFT JOIN drg_codes drg ON a.drg_code_id = drg.id;
 
 -- Create Indexes for Performance
-CREATE INDEX idx_auth_member ON authorizations(member_id);
-CREATE INDEX idx_auth_provider ON authorizations(provider_id);
-CREATE INDEX idx_auth_status ON authorizations(status);
-CREATE INDEX idx_auth_priority ON authorizations(priority);
-CREATE INDEX idx_auth_next_review ON authorizations(next_review_date);
-CREATE INDEX idx_auth_received_date ON authorizations(received_date);
-CREATE INDEX idx_auth_admission_date ON authorizations(admission_date);
-CREATE INDEX idx_auth_number ON authorizations(authorization_number);
+CREATE INDEX IF NOT EXISTS idx_auth_member ON authorizations(member_id);
+CREATE INDEX IF NOT EXISTS idx_auth_provider ON authorizations(provider_id);
+CREATE INDEX IF NOT EXISTS idx_auth_status ON authorizations(status);
+CREATE INDEX IF NOT EXISTS idx_auth_priority ON authorizations(priority);
+CREATE INDEX IF NOT EXISTS idx_auth_next_review ON authorizations(next_review_date);
+CREATE INDEX IF NOT EXISTS idx_auth_received_date ON authorizations(received_date);
+CREATE INDEX IF NOT EXISTS idx_auth_admission_date ON authorizations(admission_date);
+CREATE INDEX IF NOT EXISTS idx_auth_number ON authorizations(authorization_number);
 
-CREATE INDEX idx_members_member_number ON members(member_number);
-CREATE INDEX idx_members_last_name ON members(last_name);
+CREATE INDEX IF NOT EXISTS idx_members_member_number ON members(member_number);
+CREATE INDEX IF NOT EXISTS idx_members_last_name ON members(last_name);
 
-CREATE INDEX idx_providers_code ON providers(provider_code);
-CREATE INDEX idx_providers_name ON providers(provider_name);
+CREATE INDEX IF NOT EXISTS idx_providers_code ON providers(provider_code);
+CREATE INDEX IF NOT EXISTS idx_providers_name ON providers(provider_name);
 
-CREATE INDEX idx_diagnoses_code ON diagnoses(diagnosis_code);
-CREATE INDEX idx_drg_code ON drg_codes(drg_code);
+CREATE INDEX IF NOT EXISTS idx_diagnoses_code ON diagnoses(diagnosis_code);
+CREATE INDEX IF NOT EXISTS idx_drg_code ON drg_codes(drg_code);
 
-CREATE INDEX idx_priority_levels_code ON priority_levels(priority_code);
-CREATE INDEX idx_review_types_code ON review_types(review_code);
-CREATE INDEX idx_status_types_code ON status_types(status_code);
+CREATE INDEX IF NOT EXISTS idx_priority_levels_code ON priority_levels(priority_code);
+CREATE INDEX IF NOT EXISTS idx_review_types_code ON review_types(review_code);
+CREATE INDEX IF NOT EXISTS idx_status_types_code ON status_types(status_code);
 
-CREATE INDEX idx_auth_documents_auth_id ON authorization_documents(authorization_id);
-CREATE INDEX idx_auth_history_auth_id ON authorization_history(authorization_id);
-CREATE INDEX idx_auth_history_changed_at ON authorization_history(changed_at);
-CREATE INDEX idx_auth_notes_auth_id ON authorization_notes(authorization_id);
-CREATE INDEX idx_auth_notes_created_at ON authorization_notes(created_at);
+CREATE INDEX IF NOT EXISTS idx_auth_documents_auth_id ON authorization_documents(authorization_id);
+CREATE INDEX IF NOT EXISTS idx_auth_history_auth_id ON authorization_history(authorization_id);
+CREATE INDEX IF NOT EXISTS idx_auth_history_changed_at ON authorization_history(changed_at);
+CREATE INDEX IF NOT EXISTS idx_auth_notes_auth_id ON authorization_notes(authorization_id);
+CREATE INDEX IF NOT EXISTS idx_auth_notes_created_at ON authorization_notes(created_at);
 
-CREATE INDEX idx_dashboard_stats_date ON dashboard_stats(stat_date);
+CREATE INDEX IF NOT EXISTS idx_dashboard_stats_date ON dashboard_stats(stat_date);
+
+-- Final logging and status check
+DO $$
+DECLARE
+    tables_created INTEGER := 0;
+    tables_existing INTEGER := 0;
+BEGIN
+    -- Count tables that exist
+    SELECT COUNT(*) INTO tables_existing 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_name IN ('users', 'members', 'providers', 'diagnoses', 'drg_codes', 
+                       'priority_levels', 'review_types', 'status_types', 'authorizations',
+                       'authorization_documents', 'authorization_history', 'authorization_notes',
+                       'dashboard_stats');
+    
+    IF tables_existing > 0 THEN
+        RAISE NOTICE 'Initial schema migration completed. Found % existing tables, ensured all objects exist.', tables_existing;
+    ELSE
+        RAISE NOTICE 'Initial schema migration completed. Created all tables and objects from scratch.';
+    END IF;
+    
+    RAISE NOTICE 'Database: %, Migration completed at: %', current_database(), CURRENT_TIMESTAMP;
+END $$;
